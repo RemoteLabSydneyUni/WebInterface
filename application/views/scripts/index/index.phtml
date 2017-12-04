@@ -1,0 +1,183 @@
+ <?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 20th March 2010
+ */
+
+?>
+
+<div class="contentheader">
+	<h2>Welcome to Remote Labs</h2>
+</div>
+
+<?php if (count($this->messages)):?>
+	<!-- Error messages. -->
+	<div id="loginerrors" class="ui-state-error ui-corner-all alertdiv">
+	<?php if (count($this->messages) == 1):?>
+		<p class="alertp">
+    		<span class="ui-icon ui-icon-alert alertspan"></span>
+    		<?=$this->messages[0]?>
+    	</p>
+	<?php else: ?>
+		<p class="alertp">
+			<span class="ui-icon ui-icon-alert alertspan"></span>
+			<strong>Alert:</strong>
+		</p>
+		<ul class="alertlist" >
+    	<?php foreach ($this->messages as $m): ?>
+    		<li><?=$m?></li>
+    	<?php endforeach; ?>
+    	</ul>
+   	<?php endif; ?>
+	</div>
+<?php endif; ?>
+
+<?php if ($this->ssoLayout): ?>
+<div id="loginbuttons">
+	<a id="<?=$this->localAuth ? 'shibbutton' : 'shibnolocalbutton'?>" class="loginbutton commonbutton" href="index/sso">
+		<img src="<?=$this->ssoIcon ? $this->ssoIcon : $this->baseUrl('/images/sso.png')?>" alt="SSO" /><br />
+		<?=$this->ssoLabel ? $this->ssoLabel : 'SSO Service'?>
+		<span class="commonhover">
+			<?=$this->ssoHover ? $this->ssoHover :
+			    'Use this to login through a Single Sign On service like Shibboleth. If you do not know which is the
+			     correct authentication method and you are not a member of the hosting institution, this is probably
+			     the correct option.'?>
+		</span>
+	</a>
+
+	<?php if ($this->localAuth): ?>
+	<a id="localbutton" class="loginbutton commonbutton">
+		<img src="<?=$this->localIcon ? $this->localIcon : $this->baseUrl('/images/locallogin.png')?>" alt="Local" /><br />
+		<?=$this->localLabel ? $this->localLabel : 'Institution Login'?>
+		<span class="commonhover">
+			<?=$this->localHover ? $this->localHover :
+			    'Use this to login through a local authentication system. If you do not know which is the correct
+			    authentication method and you are a member of the hosting institution, this is propbably the
+			    correct option.'?>
+		</span>
+	</a>
+	<?php endif; ?>
+</div>
+
+<div id="localloginform">
+<?php endif; ?>
+
+	<div id="loginformpanel">
+		<form id="loginform" method="POST">
+			<div class="commonpanel ui-corner-all">
+				<div class='commonpanelheader'>
+					<span class="ui-icon ui-icon-key"> </span>
+					<?=($this->localLabel ? $this->localLabel : 'Login') . ':'?>
+				</div>
+				<div class="commonpanelcontents saharaform">
+					<div>
+						<label for="usernamefield">Username:</label>
+						<input id='usernamefield' class='validate[required]' type='text' name='username' />
+					</div>
+					<div>
+						<label for="passwordfield">Password:</label>
+						<input id='passwordfield' class='validate[required]' type='password' name='password' />
+					</div>
+				</div>
+			</div>
+			<div id='loginsubmit'>
+				<button type='submit'>Login</button>
+			</div>
+<?php if ($this->ssoLayout): ?>
+			<div id='loginback'>
+				<button type='button'>Back</button>
+			</div>
+<?php endif; ?>
+		</form>
+	</div>
+
+<?php if ($this->ssoLayout): ?>
+</div>
+<?php endif; ?>
+
+<script type="text/javascript">
+var hovTT = new Object();
+$(document).ready(function() {
+<?php if ($this->ssoLayout): ?>
+
+	$("#loginform").validationEngine();
+	$("#loginform input")
+		.focusin(formFocusIn)
+		.focusout(formFocusOut);
+
+	$("#loginform button").button();
+
+	$("#localbutton").click(function() {
+		$(this).parent().hide();
+		$("#localloginform").show();
+	});
+
+	$("#loginback button").click(function() {
+		$("#loginbuttons").show();
+		$("#localloginform").hide();
+		$("#loginform").validationEngine("hideAll");
+	});
+
+
+	$(".loginbutton").hover(function(){
+			var eId = $(this).attr('id');
+			hovTT[eId] = true;
+			setTimeout(function() {
+				if (hovTT[eId]) $("#" + eId).children('.commonhover').fadeIn('slow');
+			}, 2000);
+		},
+		function() {
+			hovTT[$(this).attr('id')] = false;
+			var hoverEle = $(this).children('.commonhover');
+			if (hoverEle.css('display') == 'block') hoverEle.fadeOut('slow');
+		}
+	);
+<?php else: ?>
+	$("#loginform").validationEngine();
+
+	$("#loginform input")
+			.focusin(formFocusIn)
+	 		.focusout(formFocusOut);
+
+	$("#loginsubmit button").button();
+<?php endif; ?>
+});
+</script>
+
+<!-- <a href='/index/requirements' target="_blank" style='position:absolute;left:200px;top:480px' class='plaina'>
+	<span class='ui-icon ui-icon-arrowthick-1-e' style='float:left;margin-right:5px'></span>
+	User and System Requirements
+</a> -->
+

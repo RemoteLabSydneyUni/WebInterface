@@ -1,0 +1,121 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 5th August 2010
+ */
+
+$help = new Sahara_Help($this->controller, $this->action);
+?>
+
+<div id="helpdialog" class="helpdialog actionbardialog" title="Help and Troubleshooting">
+	<div class="helpcontents" >
+		<div class="helptitle ui-widget-header ui-corner-all">Help:</div>
+		<p><?=$help->getPageHelp()?></p>
+		<?php if ($help->getPageTS()): ?>
+		<div class="helptitle ui-widget-header ui-corner-all">Troubleshooting:</div>
+		<ul class="helplist">
+			<?php foreach ($help->getPageTS() as $qu => $an):?>
+			<li>
+				<div class="helpclick ui-corner-all">
+					<a class="helpclicka"><span class="ui-icon ui-icon-plus"> </span><?=$qu?></a>
+    				<div class="helpcontent">
+    				<?php if (is_array($an)  && array_key_exists(1, $an)): ?>
+    					<ul>
+    				    <?php foreach ($an as $a): ?>
+    				    	<li><?=$a?></li>
+    				    <?php endforeach; ?>
+    				    </ul>
+    				<?php elseif (is_array($an)): ?>
+						<ul class="helplist">
+						<?php foreach ($an as $q => $a): ?>
+							<li>
+								<div class="helpclickinner ui-corner-all">
+            						<span class="ui-icon ui-icon-plus"> </span><?=$q?>
+                					<div class="helpcontentinner"><?=$a?></div>
+                				</div>
+							</li>
+						<?php endforeach; ?>
+						</ul>
+    				<?php else: ?>
+    					<?=$an?>
+    				<?php endif; ?>
+    				</div>
+				</div>
+			</li>
+			<?php endforeach; ?>
+		</ul>
+		<?php endif; ?>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".helpclicka").click(function() {
+		var contentdiv = $(this).siblings(".helpcontent");
+		if (contentdiv.hasClass("helpcontentblock"))
+		{
+			$(this).children("span.ui-icon")
+				   .removeClass("ui-icon-minus")
+				   .addClass("ui-icon-plus");
+			contentdiv.removeClass("helpcontentblock").slideUp();
+		}
+		else
+		{
+			contentdiv.addClass("helpcontentblock").slideDown();
+			$(this).children("span.ui-icon")
+				   .removeClass("ui-icon-plus")
+				   .addClass("ui-icon-minus");
+		}
+	});
+
+	$(".helpclickinner").click(function() {
+		var contentdiv = $(this).children(".helpcontentinner");
+		if (contentdiv.hasClass("helpcontentblock"))
+		{
+			$(this).children("span.ui-icon")
+				   .removeClass("ui-icon-minus")
+				   .addClass("ui-icon-plus");
+			contentdiv.removeClass("helpcontentblock").slideUp();
+		}
+		else
+		{
+			contentdiv.addClass("helpcontentblock").slideDown();
+			$(this).children("span.ui-icon")
+				   .removeClass("ui-icon-plus")
+				   .addClass("ui-icon-minus");
+		}
+	});
+});
+</script>

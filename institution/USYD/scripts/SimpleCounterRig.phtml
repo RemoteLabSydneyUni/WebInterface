@@ -1,0 +1,31 @@
+<?php
+
+/* SimpleCounterRig interface implementation. */
+$this->headScript()->appendFile($this->baseUrl('/js/SimpleCounter/SimpleCounter.js'));
+$this->headScript()->appendFile($this->baseUrl('/js/canvasutilities.js'));
+// $this->headLink()->appendStylesheet($this->baseUrl('/css/Basic/Base.css'));
+$this->headLink()->appendStylesheet($this->baseUrl('/css/SimpleCounter/SimpleCounter.css'));
+
+/* Canvas compatability implementation for Internet Explorer 8 and earlier. */
+$this->headScript()->appendFile($this->baseUrl('js/excanvas.js'),
+        'text/javascript',
+        array('conditional' => 'lt IE 9')
+);
+
+/* Touch events punching to mouse events. */
+//$this->headScript()->appendFile($this->baseUrl('uts/coupledtanksnew/jquery.ui.touch-punch.js'));
+?>
+
+<div id="SimpleCounterRig-control-anchor">
+<p id="counterdebug"></p>
+    <!-- Interface goes here! -->
+</div>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	var inter = new SimpleCounterControl("SimpleCounterRig-control-anchor");
+	inter.setup();
+	inter.run();
+});
+</script>

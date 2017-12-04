@@ -1,0 +1,363 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *queuequeue
+ * @author Michael Diponio (mdiponio)
+ * @date 28th December 2010
+ */
+
+$this->headLink()->appendStylesheet($this->baseUrl('/css/bookings.css'));
+$this->headScript()->appendFile($this->baseUrl('/js/bookings.js'));
+
+list($year, $mon, $day) = explode('-', $this->currentDay, 3);
+$displayStart = $sDate = "$day/$mon/$year";
+
+switch ($this->dateFormat)
+{
+    case 'B':
+        $displayStart = "$year/$mon/$day";
+        break;
+    case 'M':
+        $displayStart = "$mon/$day/$year";
+        break;
+    case 'L':
+    default:
+        $displayStart = "$day/$mon/$year";
+        break;
+}
+
+list($year, $mon, $day) = explode('-', $this->endDay, 3);
+$eDate = "$day/$mon/$year";
+
+/* Write in timezone information. */
+$initScript = "var vp = new Booking(" . $this->permission->permissionID .
+        ", '$sDate', '$eDate', " . $this->permission->sessionDuration . ", " .
+		$this->permission->allowedExtensions . ", " . $this->permission->extensionDuration . ", '" .
+		$this->name . "', " . $this->numBookings . ", " . $this->permission->maxBookings . ", '" .
+		$this->tz->systemTimezone . "', " . $this->tz->offsetFromUTC . ");\n";
+foreach ($this->tz->supportedTimezones as $t)
+{
+    $initScript .= "vp.addTimezone('" . $t->timezone . "', " . $t->offsetFromSystem . ");";
+}
+$initScript .= "\n$(document).ready(function() { vp.initTimezone() });\n";
+
+/* Presentation format. */
+$initScript .= "\ndateFormat = '" . $this->dateFormat . "';\n";
+$this->headScript()->appendScript($initScript);
+?>
+
+<div class="contentheader">
+	<h2>Reservation for <?=$this->stringTransform($this->name, '_', ' ')?></h2>
+</div>
+
+<?php if ($this->showTzButton): ?>
+<div id="timezonebutton">
+       <a id="timezone" class="ui-corner-br">
+           <img src="/images/timezone.png" alt="Tz" />
+       </a>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#timezone").click(function() {
+    	vp.displayTzSelector();
+    });
+});
+</script>
+<?php endif; ?>
+
+<?php if ($this->horizonPassed): ?>
+<div id="nobookwarning" class="ui-state-error ui-corner-all">
+    <span class="ui-icon ui-icon-alert" style="float:left;margin-right:5px"></span>
+    <p>You cannot create any more reservations because the time allowed to create reservations has passed.</p>
+</div>
+
+<script type="text/javascript">
+<!--
+$(document).ready(function() {
+	$("#nobookwarning").show();
+	vp.disableBookings();
+});
+//-->
+</script>
+
+<?php else: ?>
+<div id="nobookwarning" class="ui-state-error ui-corner-all">
+    <span class="ui-icon ui-icon-alert" style="float:left;margin-right:5px"></span>
+    <p>You cannot create any more reservations because you already have the maximum number of allowed
+    <span class='warningem'>concurrent</span> reservations for
+    '<span class="warninghighlight"><?=$this->stringTransform($this->name, '_', ' ')?></span>'. You may create more
+    reservations once your current reservations are either finished or cancelled.</p>
+</div>
+
+<?php endif; ?>
+
+<!-- Day picker bar. -->
+<div id="daypickerbar">
+	<div id="leftarrowbox" class="arrowbox">
+		<a id="leftarrow" class="plaina disdaybutton ui-corner-all">
+			<img src="<?=$this->baseUrl('/images/dis_leftarrow.png')?>" alt="Previous" />
+		</a>
+		<div class="daybuttonlabel">Previous Day</div>
+	</div>
+
+	<div id="daypickercontainer">
+		<div id="daypickerinput" class="saharaform">
+			<input id="daypicker" type="text" value="<?=$displayStart?>" />
+		</div>
+
+		<div id="daypickericonbox" class="arrowbox">
+			<a id="daypickericon" class="plaina daybutton ui-corner-all"> <img
+				src="<?=$this->baseUrl('/images/daypicker.png')?>" alt="Pick" />
+			</a>
+			<div class='daybuttonlabel'>Open</div>
+		</div>
+	</div>
+
+	<div id="rightarrowbox" class="arrowbox">
+	    <?php if ($this->endDay == $this->currentDay): ?>
+		<a id="rightarrow" class="plaina disdaybutton ui-corner-all">
+			<img src="<?=$this->baseUrl('/images/dis_rightarrow.png')?>" alt="Next" />
+		</a>
+		<?php else: ?>
+		<a id="rightarrow" class="plaina daybutton ui-corner-all">
+			<img src="<?=$this->baseUrl('/images/rightarrow.png')?>" alt="Next" />
+		</a>
+		<?php endif; ?>
+		<div class="daybuttonlabel">Next Day</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+//<!--
+$(document).ready(function() {
+
+	var df;
+	switch (dateFormat)
+	{
+	case 'B':
+		df = 'yy/mm/dd';
+		break;
+	case 'M':
+		df = 'mm/dd/yy';
+		break;
+	case 'L':
+	default:
+		df = 'dd/mm/yy';
+		break;
+	}
+
+
+	$('#daypicker').datepicker({
+		defaultDate: vp.getCurrent(),
+		minDate: vp.getStart(),
+		maxDate: vp.getEnd(),
+		dateFormat: df,
+		showAnim: '',
+		onSelect: function(dateText, inst) {
+			vp.changeDate(dateText);
+		}
+	})
+	.datepicker('show')
+	.datepicker('hide')
+	.datepicker('option', 'showAnim', 'show');
+
+	if ($.browser.msie && $.browser.version == '6.0')
+	{
+		/* Hack for IE6 making the datepicker height 14px. */
+    	$("#daypicker").focusin(function() {
+    		$("#ui-datepicker-div").css("height", "185px");
+    	});
+    	$("#ui-datepicker-div").css("height", "185px");
+	}
+
+	vp.initDate();
+
+	$("#daypickericon").click(function() {
+		$("#daypicker").datepicker("show");
+
+		if ($.browser.msie && $.browser.version == '6.0') $("#ui-datepicker-div").css("height", "185px");
+	});
+	$("#leftarrow").click(function() { vp.previousDay(); });
+	$("#rightarrow").click(function() { vp.nextDay(); } );
+<?php if ($this->currentDay == $this->endDay): ?>
+	vp.nextEnabled = false;
+<?php endif; ?>
+
+<?php if ($this->numBookings >= $this->permission->maxBookings): ?>
+	vp.setMaximumBookings();
+<?php endif; ?>
+});
+//-->
+</script>
+
+<div style="clear:both"></div>
+
+<div id="bookingstimecontainer" class="ui-corner-all">
+	<div id="bookingstimetitle" class="ui-corner-all"><?=$displayStart?></div>
+
+	<div id="timecols">
+    	<!-- Left time column. -->
+    	<div id="lefttimecol" class="timecol">
+    	<?php $state = reset($this->slots);
+    	    for ($i = 0; $i < $this->midSlot; $i += 4): ?>
+    		<div class="timehour">
+    		    <div id="timelabel<?=$i / 4?>" class="timelabel"><?=Sahara_DateTimeUtil::displayHourFromSlot($i)?></div>
+    		    <div class="timeslothour">
+    		    <?php for ($k = $i; $k < $i + 4; $k++):
+    		          if (array_key_exists($k, $this->slots)) $state = $this->slots[$k]; ?>
+    		    	<div id="slot<?=$k?>" class="timeslot <?php
+    		    	                   echo in_array($k, $this->userBookings) ? "ownbooking" : strtolower($state);
+    		    	                   if ($k == 0) echo ' firstslot';
+    		                           if ($k == $this->midSlot - 1) echo ' lastslot'; ?>">&nbsp;</div>
+    		    <?php endfor; ?>
+    		    </div>
+    		</div>
+    	<?php endfor; ?>
+    	</div>
+
+    	<!-- Right time column. -->
+    	<div id="righttimecol" class="timecol">
+        <?php for ( ; $i < $this->numSlots; $i += 4): ?>
+    		<div class="timehour <?php  ?>">
+    		    <div id="timelabel<?=$i / 4?>" class="timelabel"><?=Sahara_DateTimeUtil::displayHourFromSlot($i)?></div>
+    		    <div class="timeslothour">
+    		    <?php for ($k = $i; $k < $i + 4; $k++):
+    		          if (array_key_exists($k, $this->slots)) $state = $this->slots[$k]; ?>
+    		    	<div id="slot<?=$k?>" class="timeslot <?php
+    		    	                        echo in_array($k, $this->userBookings) ? "ownbooking" : strtolower($state);
+    		    	                        if ($k == $this->midSlot) echo ' firstslot';
+    		                                if ($k == $this->numSlots - 1) echo ' lastslot';?>">&nbsp;</div>
+    		    <?php endfor; ?>
+    		    </div>
+    		</div>
+    	<?php endfor; ?>
+    	</div>
+	</div>
+	<div id="endtimecols"></div>
+</div>
+
+<script type="text/javascript">
+<!--
+$(document).ready(function() {
+	$(".free").click(function(){
+		vp.startBooking($(this));
+	})
+	.hover(
+		function() {
+			var id = $(this).attr('id');
+			if (vp.initHover(id)) setTimeout("vp.drawHover('" + id + "')", 1000);
+		},
+		function() {
+			vp.clearHover($(this));
+		}
+	);
+});
+//-->
+</script>
+
+<!-- Legend -->
+<div id="statelegend">
+	<p>Legend:</p>
+	<ul>
+		<li id="stateown" class="stateitem hoverpoint">
+			<div class="stateicon ui-corner-all"></div>
+			<div class="statelabel">Own reservation</div>
+			<div id="statehoverown" class="stateitemhover itemhover ui-corner-all">
+				<div class="largestateicon ui-corner-all"> </div>
+				<div class="statehoverdesc">
+					Time periods where you already have a reservation. You cannot create concurrent
+					reservations.
+				</div>
+			</div>
+		</li>
+		<li id="statenoperm" class="stateitem  hoverpoint">
+			<div class="stateicon ui-corner-all"></div>
+			<div class="statelabel">No permission</div>
+			<div id="statehovernoperm" class="stateitemhover itemhover ui-corner-all">
+				<div class="largestateicon ui-corner-all"> </div>
+				<div class="statehoverdesc">
+					 Time periods where you do not have permission to make a reservation.
+				</div>
+			</div>
+		</li>
+		<li id="statefree" class="stateitem  hoverpoint">
+			<div class="stateicon ui-corner-all"></div>
+			<div class="statelabel">Available</div>
+			<div id="statehoverfree" class="stateitemhover itemhover ui-corner-all">
+				<div class="largestateicon ui-corner-all"> </div>
+				<div class="statehoverdesc">
+					 Time periods which are free and you may make a reservation for the resource.
+				</div>
+			</div>
+		</li>
+		<li id="statereserved" class="stateitem  hoverpoint">
+			<div class="stateicon ui-corner-all"></div>
+			<div class="statelabel">Not available</div>
+			<div id="statehoverreserved" class="stateitemhover itemhover ui-corner-all">
+				<div class="largestateicon ui-corner-all"> </div>
+				<div class="statehoverdesc">
+					 Time periods which are already reserved and may not be further reserved.
+				</div>
+			</div>
+		</li>
+	</ul>
+</div>
+
+<script type="text/javascript">
+<!--
+var ttHovers = new Object();
+$(".hoverpoint").hover(
+	function() {
+		var nid = $(this).attr("id");
+		ttHovers[nid] = true;
+		setTimeout("displayTT('" + nid + "')", 1000);
+	},
+	function() {
+		ttHovers[$(this).attr("id")] = false;
+		var node = $(this).children(".itemhover");
+		if (node.css("display") == "block")
+		{
+			node.fadeOut();
+		}
+	}
+);
+
+function displayTT(nid)
+{
+	if (ttHovers[nid])
+	{
+		$("#" + nid).children(".itemhover").fadeIn();
+	}
+}
+//-->
+</script>

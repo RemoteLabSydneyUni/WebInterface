@@ -1,0 +1,111 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 21st March 2010
+ */
+$this->headLink()->appendStylesheet($this->baseUrl('css/info.css'));
+?>
+
+<!-- Slideshow HTML -->
+	<div id="slideshow">
+	  <div id="slidesContainer">
+		<?php foreach ($this->labinfo as $labinfo):?>
+		    <div class="slide">
+		    	<img src="<?=$this->baseUrl($labinfo["filename"])?>" alt="<?=$labinfo["alt"]?>" title="<?=$labinfo["title"]?>"/>
+				<span class="imagetitle"><?=$labinfo["title"]?></span>
+				<span class="imagealt"><?=$labinfo["alt"]?></span>
+	    	</div>
+		<?php endforeach;?>
+	  </div>
+	</div>
+<!-- Slideshow HTML -->
+
+<script>
+$(document).ready(function(){
+  var currentPosition = 0;
+  var slideWidth = 560;
+  var slides = $('.slide');
+  var numberOfSlides = slides.length;
+
+  // Remove scrollbar in JS
+  $('#slidesContainer').css('overflow', 'hidden');
+
+  // Wrap all .slides with #slideInner div
+  slides
+  .wrapAll('<div id="slideInner"></div>')
+  // Float left to display horizontally, readjust .slides width
+  .css({
+    'float' : 'left',
+    'width' : slideWidth
+  });
+
+  // Set #slideInner width equal to total width of all slides
+  $('#slideInner').css('width', slideWidth * numberOfSlides);
+
+  // Insert left and right arrow controls in the DOM
+  $('#slideshow')
+    .prepend('<span class="control" id="leftControl" style="background-image:url(<?=$this->baseUrl("/images/1leftarrow.png")?>)">Move left</span>')
+    .append('<span class="control" id="rightControl" style="background-image:url(<?=$this->baseUrl("/images/1rightarrow.png")?>)">Move right</span>');
+
+  // Hide left arrow control on first load
+  manageControls(currentPosition);
+
+  // Create event listeners for .controls clicks
+  $('.control')
+    .bind('click', function(){
+    // Determine new position
+      currentPosition = ($(this).attr('id')=='rightControl')
+    ? currentPosition+1 : currentPosition-1;
+
+      // Hide / show controls
+      manageControls(currentPosition);
+      
+      // Move slideInner using margin-left
+      $('#slideInner').animate({
+        'marginLeft' : slideWidth*(-currentPosition)
+      });
+    });
+
+  // manageControls: Hides and shows controls depending on currentPosition
+  function manageControls(position){
+    // Hide left arrow if position is first slide
+    if(position==0){ $('#leftControl').hide() }
+    else{ $('#leftControl').show() }
+    // Hide right arrow if position is last slide
+    if(position==numberOfSlides-1){ $('#rightControl').hide() }
+    else{ $('#rightControl').show() }
+    }
+  });
+</script>

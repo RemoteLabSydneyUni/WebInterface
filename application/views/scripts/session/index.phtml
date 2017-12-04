@@ -1,0 +1,140 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 5th April 2010
+ */
+
+$this->headScript()->appendFile($this->baseUrl('js/session.js'));
+$this->headLink()->appendStylesheet($this->baseUrl('css/session.css'));
+
+$c = Zend_Registry::get('config')->session->interval;
+$this->headScript()->appendScript('
+
+/* Extensions number. */
+extensions = ' . $this->info->extensions . ';
+callBackInterval = ' . ($c ? $c * 1000 : 60000) .';
+notReady = '. ($this->info->isReady ? 'false' : 'true') . ';
+
+$(document).ready(function() {
+	tInterval = setInterval("updateSession()", ' . ($this->info->isReady ? ($c ? $c * 1000 : 60000) : 5000) . ');
+	cInterval = setInterval("remainingCountDown()", 1000);
+	uInterval = setInterval("inSessionCountUp()", 1000);
+});
+');
+
+if (!$this->info->isReady)
+{
+    $this->headScript()->appendScript(
+'
+$(document).ready(function() {
+	$("#readyoverlay").dialog({
+		autoOpen: true,
+		closeOnEscape: false,
+		draggable: false,
+		modal: true,
+		width: 240,
+		height: 115,
+		resizable: false
+	});
+
+	/* Hide hideable elements when the rig is getting ready. */
+	$(".overlayelementhide").css("display", "none");
+
+	$("div[aria-labelledby=ui-dialog-title-readyoverlay] .ui-dialog-titlebar").css("display", "none");
+});'
+    );
+}
+?>
+
+<div class="contentheader">
+	<h2 style="margin-left:50px"><?=$this->rig?></h2>
+</div>
+
+<div id="sessioninfo" class="sessionpanel ui-corner-all">
+	<div class="sessionpanelheader">
+		<p><span class="ui-icon ui-icon-info sessionpanelheadericon"></span>Session Time</p>
+	</div>
+	<div id="sessioninfocontent">
+		<div id="sessiontime">
+			In Session:
+			<span class="hour"><?=$this->timePad($this->time['hours'])?></span> :
+			<span class="min"><?=$this->timePad($this->time['mins'])?></span> :
+			<span class="sec"><?=$this->timePad($this->time['secs'])?></span>
+		</div>
+		<div id="sessionremainingtime">
+			<div class="timeheader">Remaining:</div>
+			<div class="timefields <?=$this->remaining['hours'] < 1 && $this->remaining['mins'] < 10 ? 'timered' : 'timenormal'?>">
+				<span class="hour"><?=$this->timePad($this->remaining['hours'])?></span> :
+				<span class="min"><?=$this->timePad($this->remaining['mins'])?></span> :
+				<span class="sec"><?=$this->timePad($this->remaining['secs'])?></span>
+			</div>
+		</div>
+	</div>
+	<div id="sessiontimeextension" style="display:none">
+		<span class="ui-icon ui-icon-clock" style="float:left"></span>
+		Your session time has been extended.
+	</div>
+</div>
+
+<?php if (!$this->info->isReady):?>
+<div id="readyoverlay">
+	<img src="<?=$this->baseUrl('images/ajax-loading.gif')?>" alt="Loading" />
+	<h3>Please wait...</h3>
+	<p>The rig is not yet ready for use.</p>
+</div>
+<?php endif; ?>
+
+<div id="rigscriptcontainer">
+
+<div id="warningmessage" style="display:<?=isset($this->info->warningMessage) ? 'block' : 'none'?>">
+	<div class="ui-corner-all ui-state-error">
+		<span class="ui-icon ui-icon-alert"></span>
+		<p id="warnmessagetext"><? if (isset($this->info->warningMessage)) echo $this->info->warningMessage?></p>
+	</div>
+</div>
+
+<?php
+    try
+    {
+        echo $this->render($this->info->rigType . '.phtml');
+    }
+    catch (Zend_Exception $ex)
+    {
+        /* The view script doesn't exist, so fall back to a default
+         * (remote desktop rig). */
+        echo $this->render('session/_rig.phtml');
+    }
+?>
+</div>

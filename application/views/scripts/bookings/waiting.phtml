@@ -1,0 +1,86 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 10th January 2011
+ */
+
+$this->headLink()->appendStylesheet($this->baseUrl('/css/bookings.css'));
+$this->headScript()->appendFile($this->baseUrl('/js/bookings.js'));
+
+$mins = floor($this->time / 60);
+$secs = $this->time % 60;
+
+$this->headScript()->appendScript('
+vp = new Waiting(' . $this->bid . ', ' . $this->time . ');
+$(document).ready(function() {
+    vp.interval = setInterval("vp.countDown()", 1000);
+});
+');
+?>
+
+<div class="contentheader">
+	<h2>Reservation Starting Soon...</h2>
+</div>
+
+<div id="bookinginfo">
+    <?php if ($this->time > 0): ?>
+    <div id="bookdesc">
+    	You have a reservation for '<span id="bookres"><?=$this->stringTransform($this->displayName, '_', ' ')?></span>' that will begin in:<br />
+    </div>
+    <div id="booktime">
+        <span id="bookingmin" class="<?=$mins < 10 ? 'booktimered' : 'booktimeblack'?>"><?=$mins?></span> minutes and
+        <span id="bookingsec" class="<?=$mins < 10 ? 'booktimered' : 'booktimeblack'?>"><?=Sahara_DateTimeUtil::zeroPad($secs)?></span> seconds.<br />
+    </div>
+    <?php elseif ($this->time > -120): ?>
+    <div id="bookdescstart">
+    	Please wait, your reservation for '<span id="bookres"><?=$this->stringTransform($this->displayName, '_', ' ')?></span>'
+    	is about to start.
+    </div>
+    <?php else: ?>
+    <div id="bookdescwarn" class="ui-corner-all ui-state ui-state-error">
+    	<span class="ui-icon ui-icon-alert bookdescwarnicon"></span>
+    	It appears your reserved resource '<span id="bookres"><?=$this->stringTransform($this->displayName, '_', ' ')?></span>' is
+    	currently <em>offline</em>. Please wait, if any other rigs are free, these will be provided to you.
+  	</div>
+    <?php endif; ?>
+    <div id="bookimg">
+        <img src="<?=$this->baseUrl('images/queuing.gif')?>" alt="Soon" />
+    </div>
+    <div id="bookingredirectinfo" class="ui-state-highlight ui-corner-all">
+    	<span class="ui-icon ui-icon-info"></span>
+    	You will be automatically redirected to the rig when your reservation starts.
+    </div>
+</div>
+

@@ -1,0 +1,130 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 21st March 2010
+ */
+
+switch ($this->userRole)
+{
+    case Sahara_Acl::USER:
+        $menu = array(
+            'Rig Selection' => array('controller' => 'queue', 'action' => 'index'),
+            'Existing Reservations' => array('controller' => 'bookings', 'action' => 'existing')
+        );
+        break;
+
+    case Sahara_Acl::RESEARCH:
+        $menu = array(
+            'Activities' => array('controller' => 'research', 'action' => 'index'),
+            'Apparatuses' => array('controller' => 'queue', 'action' => 'index'),
+            'Reservations' => array('controller' => 'bookings', 'action' => 'existing')
+        );
+        break;
+
+    case Sahara_Acl::ACADEMIC:
+        $menu = array(
+            'Rig Selection' => array('controller' => 'queue', 'action' => 'index'),
+            'Existing Reservations' => array('controller' => 'bookings', 'action' => 'existing'),
+            'Reports' => array('controller' => 'reports', 'action' => 'index')
+        );
+    	break;
+
+    case Sahara_Acl::ADMIN:
+        $menu = array(
+            'Rig Administration' => array('controller' => 'admin', 'action' => 'rig'),
+            'Rig Selection' => array('controller' => 'queue', 'action' => 'index'),
+            'Existing Reservations' => array('controller' => 'bookings', 'action' => 'existing'),
+            'Reports' => array('controller' => 'reports', 'action' => 'index')
+        );
+        break;
+
+    case Sahara_Controller_Action_Acl::PSEUDO_ROLE_QUEUE:
+        $menu = array(
+            'Queue' => array('controller' => 'queue', 'action' => 'queuing')
+        );
+        break;
+
+    case Sahara_Controller_Action_Acl::PSEUDO_ROLE_SESSION:
+        $menu = array(
+            'Session' => array('controller' => 'session', 'action' => 'index')
+        );
+        break;
+
+    case Sahara_Controller_Action_Acl::PSEUDO_ROLE_BOOKING:
+        $menu = array(
+            'Reservation' => array('controller' => 'bookings', 'action' => 'waiting')
+        );
+        break;
+
+    case 'ERROR':
+        $menu = array(
+            'Login' => array('controller' => 'index', 'action' => 'index')
+        );
+        break;
+
+    default:
+        $menu = array(
+        	'Login' => array('controller' => 'index', 'action' => 'index'),
+            'Contact Us' => array('controller' => 'info', 'action' => 'contact')
+        );
+        break;
+}
+
+/* Make sure the current controller / action exists otherwise use the first
+ * role bar. */
+$nbTitle = false;
+foreach ($menu as $title => $url)
+{
+    if ($url['controller'] == $this->controller && $url['action'] == $this->action)
+    {
+        $nbTitle = $title;
+        break;
+    }
+}
+
+reset($menu);
+if (!$nbTitle) $nbTitle = key($menu);
+?>
+
+<div class="menu ui-corner-bottom">
+	<ol id="menu">
+	<?php foreach ($menu as $title => $url): ?>
+		<li <?php if ($nbTitle == $title) echo 'value="1"'; ?>>
+			<a class="plaina apad <?php if ($nbTitle == $title) echo 'navselected'; ?>" href="<?=$this->url($url, null, true)?>"><?=$title?></a>
+		</li>
+	<?php endforeach; ?>
+	</ol>
+	<div id="slide"></div>
+</div>

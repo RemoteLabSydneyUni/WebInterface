@@ -1,0 +1,11 @@
+#rig {
+        height: 675px;
+} 
+
+.rigbutton, #rigcamerabuttons .camerabutton {
+        filter: progid:DXImageTransform.Microsoft.Shadow(color=#B5B5B5, Strength=4);
+}
+
+.rigbutton:hover, #rigcamerabuttons .camerabutton:hover {
+        filter: progid:DXImageTransform.Microsoft.Shadow(color=#606060, Strength=4);
+}

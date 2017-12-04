@@ -1,0 +1,93 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 3rd May 2010
+ */
+?>
+
+<div id="rdpcontrolpanel" class="sessionpanel ui-corner-all leftpush overlayelementhide" style="left:-185px;top:208px;display:none">
+	<div class="sessionpanelheader">
+		<p><span class="ui-icon ui-icon-wrench sessionpanelheadericon"></span>Rig Control</p>
+	</div>
+	<div id="rdppanelcontent" style="overflow:hidden">
+	    <div class='ui-state-error' style='padding:5px;border-radius:4px;margin:5px'>
+            <span class='ui-icon ui-icon-alert' style='float:left;margin-right:5px'></span><strong>NOTE:</strong>
+            Java version 7 update 21 is known to not work. Please use Java 7 update 17 until this is resolved.
+        </div>
+		<applet id="rdpapplet" name="Control Applet" style="margin-left:5px;margin-top:5px"
+				code="au.edu.uts.eng.remotelabs.rdp.SaharaRdpApplet.class" archive="<?=$this->baseUrl('/applets/' . $this->applet)?>"
+				width="165" height="<?=$this->height?>">
+		<?php foreach ($this->params as $p => $v): ?>
+			<param name="<?=$p?>" value="<?=$v?>" />
+		<?php endforeach; ?>
+			<a href="http://java.com/en/download/">Install Java 6.</a>
+		</applet>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+	/* Correctly vertical align the applet panel. To do this, the height of the
+	 * camera control panel needs to be taken into account. */
+	var top = 100; // Position of then panel directly below the time panel
+
+	var camHeight = parseInt($("#cameracontrolpanel").height());
+	if (typeof camHeight == "number" && camHeight > 0)
+	{
+		top += camHeight + 14; // Padding between panels
+	}
+
+	$("#rdpcontrolpanel").css("top", top);
+	provideSessionInfoApplet();
+	if ($("#readyoverlay").length == 0) $("#rdpcontrolpanel").css("display", "block");
+
+
+});
+
+function provideSessionInfoApplet()
+{
+	var applet = document.getElementById("rdpapplet");
+	var host = document.location.host;
+	if (!(typeof applet.setSessionInfo == 'undefined' || $(".overlayelementhide").css('display') == 'none'))
+	{
+		applet.setSessionInfo("http://" + host, document.cookie);
+	}
+	else
+	{
+		setTimeout("provideSessionInfoApplet()", 250);
+	}
+}
+</script>

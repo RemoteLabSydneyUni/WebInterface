@@ -1,0 +1,349 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 24th March 2010
+ */
+
+$this->headLink()->appendStylesheet($this->baseUrl('css/queue.css'));
+$this->headScript()->appendScript('
+$(document).ready(function() {
+	$("#userclasstabs").tabs();
+});
+')
+;
+$this->headScript()->appendFile($this->baseUrl('js/queue.js'));
+
+if (!$this->noPermissions)
+{
+    /* Sort the user classes by name. */
+    $keys = array_keys($this->userPermissions);
+    sort($keys, SORT_STRING);
+
+    /* Generate the tab div ids. */
+    $tabHref = array();
+    $i = 1;
+    foreach ($keys as $key)
+    {
+        $tabHref[$key] = 'userClass' . $i++;
+    }
+
+    /* Work out the height of the tab div. */
+    $tabHeight = 0;
+    foreach ($this->userPermissions as $permissions)
+    {
+        $height = 0;
+        foreach ($permissions as $type => $perms)
+        {
+            $height += ceil(count($perms) / 4) * 100 + ceil((count($perms) / 4)) * 50;
+        }
+        if ($height > $tabHeight) $tabHeight = $height;
+    }
+}
+?>
+
+<div class="contentheader">
+	<h2>Rig Selection</h2>
+</div>
+
+<?php if (!$this->noPermissions): ?>
+
+<!-- Tab bar. -->
+<div id="userclasstabs">
+	<ul>
+    <?php foreach ($keys as $class): ?>
+		<li>
+			<a href="#<?=$tabHref[$class]?>"><?=$this->stringTransform($class, '_', ' ')?></a>
+		</li>
+    <?php endforeach; ?>
+    </ul>
+
+<!-- Tab content. -->
+<?php foreach ($tabHref as $class => $id):?>
+<div id="<?=$id?>" style="height:<?=$tabHeight?>px">
+
+<!-- Permission list for class <?=$class?> -->
+<?php foreach ($this->userPermissions[$class] as $type => $typePerm):
+      if (count($typePerm)): ?>
+	<div class="permissionbar">
+		<h3><?=$type?></h3>
+		<ul class="permissionlistbar">
+			<?php foreach ($typePerm as $perm): ?>
+			<li>
+				<a id="<?=$perm['id']?>_link" class="permissionbutton commonbutton plaina" href="#">
+				<?php if (!$perm['active']): ?>
+					<img class="permissionicon" src="<?=$this->baseUrl('images/permission_expired.png')?>" alt="Expired" />
+				<?php elseif ($perm['locked']):?>
+					<img class="permissionicon" src="<?=$this->baseUrl('images/permission_locked.png')?>" alt="Locked" />
+				<?php else: ?>
+					<img class="permissionicon" src="<?=$this->baseUrl('images/permission_launch.png')?>" alt="Allowed" />
+				<?php endif;?>
+				    <?=$this->stringTransform($perm['display'], '_', ' ')?>
+				</a>
+			</li>
+			<?php endforeach;?>
+		</ul>
+	</div>
+<?php endif;
+      endforeach; ?>
+
+<!-- End tab content. -->
+</div>
+<?php endforeach; ?>
+
+<!-- End tab bar. -->
+</div>
+
+<!-- Dialog content for the permission dialogs. -->
+<?php foreach ($this->userPermissions as $class => $classPerms): ?>
+	<?php foreach ($classPerms as $type => $typePerms): ?>
+		<?php foreach ($typePerms as $perm):?>
+<div id="<?=$perm['id']?>" class="permissiondialog" style="display:none" title="<?=$this->stringTransform($perm['display'], '_', ' ')?>">
+<?php if (!$perm['active']): ?>
+
+<!-- Inactive permission dialog -->
+<div class="ui-state-error ui-corner-all alertdiv centercontent" style="width:400px">
+	<p class="alertp">
+   		<span class="ui-icon ui-icon-alert alertspan"></span>
+   		Sorry, the permission for <?=$this->stringTransform($perm['display'], '_', ' ')?> is not valid.
+   	</p>
+</div>
+<div class="ui-priority-secondary ui-corner-all" style="width:400px;margin-top:10px">
+  	<span class="ui-icon ui-icon-info alertspan"></span>
+   <?php if (Sahara_DateTimeUtil::isBeforeNow($perm['expiry'])):?>
+    	This permission expired on <?=date('l, \t\h\e jS \o\f F o \a\t H:i', Sahara_DateTimeUtil::getTsFromISO8601($perm['expiry']))?>.
+    <?php else: ?>
+    	This permission will be active from <?=date('l, \t\h\e jS \o\f F o \a\t H:i', Sahara_DateTimeUtil::getTsFromISO8601($perm['start']))?>.
+    <?php endif; ?>
+</div>
+
+    <?php elseif ($perm['locked']):?>
+
+<!-- Locked permission dialog -->
+<div id="perm_lock_div_<?=$perm['permissionId']?>">
+	Unlock '<?=$this->stringTransform($perm['resource'], '_', ' ')?>' rigs:
+	<form id="perm_lock_form_<?=$perm['permissionId']?>" method="POST" action="">
+    <?php $form = new Sahara_PermissionLock_Form($perm['permissionId']);
+          echo $form->getDisplayGroup('perm_lock_form')->render(); ?>
+	</form>
+</div>
+<div id="perm_lock_result_<?=$perm['permissionId']?>" class="permlockres">Successfully unlocked permission.</div>
+<div id="perm_lock_result_fail_<?=$perm['permissionId']?>" class="permlockresfail">Supplied key is incorrect.</div>
+
+<script type="text/javascript">
+$(document).ready( function () {
+	$("#perm_lock_form_<?=$perm['permissionId']?>").unbind();
+	$("#perm_lock_form_<?=$perm['permissionId']?>").submit(function() {
+		unlockPermission(<?=$perm['permissionId']?>);
+		return false;
+	});
+	$("#perm_lock_form_<?=$perm['permissionId']?>").jqTransform();
+	$("#perm_lock_form_<?=$perm['permissionId']?>").validationEngine();
+
+	/* Styling fixes. */
+	$("#fieldset-perm_lock_form table.formdisplaygroup").css("width", "100%");
+	$("#fieldset-perm_lock_form td").css("width", "20px");
+	$("#fieldset-perm_lock_form td.rowField").css("width", "100%");
+	$("#perm_lock_form div.jqTransformInputWrapper").css("width", "100%");
+	$("#perm_lock_form input.jqTransformInput").css("width", "100%");
+});
+</script>
+
+<?php else: ?>
+
+	<!-- Active permission dialog -->
+	<div class="permissiondialogloading">
+    	<img src="<?=$this->baseUrl('images/ajax-loading.gif')?>" alt="Loading" /><br />
+    	<p>Loading...</p>
+    </div>
+<?php endif; ?>
+</div>
+		<?php endforeach; ?>
+	<?php endforeach; ?>
+<?php endforeach; ?>
+
+<!-- Script for the permission dialogs. -->
+<script type="text/javascript">
+$(document).ready(function() {
+<?php foreach ($this->userPermissions as $class => $classPerms): ?>
+	<?php foreach ($classPerms as $type => $typePerms): ?>
+		<?php foreach ($typePerms as $perm):?>
+
+	/* Dialogises dialog for id <?=$perm['id']?>. */
+	$("#<?=$perm['id']?>").dialog({
+		autoOpen: false,
+		modal: true,
+		resizable: false,
+<?php if (!$perm['active']): ?>
+
+		/* Inactive permission script. */
+		width: 420,
+		height: 210,
+		buttons: {
+		<?php if ($perm['canBook'] && Sahara_DateTimeUtil::isAfterNow($perm['start'])): ?>
+			'Reserve': function() { window.location.replace("/bookings/index/pid/<?=$perm['permissionId']?>"); },
+		<?php endif; ?>
+			'Close': function() { $(this).dialog('close'); }
+		}
+	});
+
+	$('#<?=$perm['id']?>_link').click(function(){
+		$('#<?=$perm['id']?>').dialog('open');
+		return false;
+	});
+<?php elseif ($perm['locked']):?>
+
+		/* Locked permission script. */
+		height: 180,
+		buttons: {
+			'Unlock': function() {
+				unlockPermission("<?=$perm['permissionId']?>");
+			},
+			'Cancel': function() { $(this).dialog("close"); }
+		}
+	});
+
+	$('#<?=$perm['id']?>_link').click(function(){
+		$("#perm_lock_result_fail_<?=$perm['permissionId']?>").hide();
+		$("#<?=$perm['id']?>").dialog("open");
+		return false;
+	});
+<?php else: ?>
+
+		/* Valid permission script. */
+			open: function(event, ui) { loadPermissionInfo("<?=$perm['permissionId']?>"); }
+		});
+
+	$('#<?=$perm['id']?>_link').click(function(){
+		$('#<?=$perm['id']?>').dialog('open');
+		return false;
+	});
+<?php endif; ?>
+
+		<?php endforeach; ?>
+	<?php endforeach; ?>
+<?php endforeach; ?>
+});
+</script>
+
+
+<!-- Legend for icon information. -->
+
+<div id="iconlegend" class="ui-corner-all ">
+	<div class="legendheading">
+		<p>Legend:</p>
+		<ul>
+			<li id="legendlabel0">
+				<img src="<?=$this->baseUrl('/images/permission_launch22.png')?>" alt="active" />Active
+				<div id="lt0" class="legendtext ui-corner-all">
+					<div class="legendimage"><img src="/images/permission_launch.png" alt="Allowed" /></div>
+					<div class="desc" >Active: You may use a rig.</div>
+				</div>
+			</li>
+			<li id="legendlabel1">
+				<img src="<?=$this->baseUrl('/images/permission_expired22.png')?>" alt="inactive" />Inactive
+				<div id="lt1" class="legendtext  ui-corner-all">
+					<div class="legendimage"><img src="/images/permission_expired.png" alt="Inactive" /></div>
+					<div class="desc" >Inactive: You do not currently have permission to use this resource.
+					Permissions are time based and you are currently outside the assigned usage period.</div>
+				</div>
+			</li>
+			<li id="legendlabel2">
+				<img src="<?=$this->baseUrl('/images/permission_locked22.png')?>" alt="locked" />Locked
+				<div id="lt2" class="legendtext ui-corner-all">
+					<div class="legendimage"><img src="/images/permission_locked.png" alt="Locked" /></div>
+					<div class="desc">Locked: The rig is active but locked. You must supply a pass key before you
+					can use or reserve it.</div>
+				</div>
+			</li>
+			<li id="legendlabel3">
+				<img src="<?=$this->baseUrl('/images/balls/green_small.gif')?>" alt="free" />Free
+				<div id="lt3" class="legendtext ui-corner-all">
+					<div class="legendimage"><img src="/images/balls/green-trans.gif" alt="Free" />
+					</div><div class="desc" >Free: The rig is currently free to use.</div>
+				</div>
+			</li>
+			<li id="legendlabel4">
+				<img src="<?=$this->baseUrl('/images/balls/yellow_small.gif')?>" alt="in use"/>In Use
+				<div id="lt4" class="legendtext ui-corner-all">
+					<div class="legendimage"><img src="/images/balls/yellow-trans.gif" alt="In Use" /></div>
+					<div class="desc">In Use: The rig is online and in use. You can queue to access it, after
+					any current, queued and reserved users.</div>
+				</div>
+			</li>
+			<li id="legendlabel5">
+				<img src="<?=$this->baseUrl('/images/balls/red_small.gif')?>" alt="offline" />Offline
+				<div id="lt5" class="legendtext ui-corner-all">
+					<div class="legendimage"><img src="/images/balls/red-trans.gif" alt="Offline" /></div>
+					<div class="desc" >Offline: The rig is offline and cannot be used at the moment.
+					You may still reserve the rig.</div>
+				</div>
+			</li>
+		</ul>
+	</div>
+</div>
+
+
+<script>
+TTStates = new Object;
+<?php for ($i = 0; $i < 6; $i++): ?>
+$("#legendlabel<?=$i?>").hover(
+		function () {
+  	  		TTStates["<?=$i?>"] = true;
+    		setTimeout("loadLegendTooltip(<?=$i?>, TTStates)", 1200);
+		},
+  		function () {
+  			if (TTStates["<?=$i?>"])
+  			{
+  				$("#legendlabel" + <?=$i?>).css("font-weight","normal");
+  				$("#lt" + <?=$i?>).fadeOut();
+  			}
+  			TTStates["<?=$i?>"] = false;
+  		}
+);
+<?php endfor; ?>
+</script>
+
+<?php else: ?>
+	<div class="ui-state-error ui-corner-all alertdiv centercontent" style="width:350px">
+		<p class="alertp">
+    		<span class="ui-icon ui-icon-alert alertspan"></span>
+    		You do not have permission to use any rigs.
+    	</p>
+    </div>
+<?php endif; ?>
+
+<?php if ($this->renderPermActivation) echo $this->render('_partials/_permkey.phtml'); ?>
+
+

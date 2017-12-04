@@ -1,0 +1,364 @@
+@CHARSET "UTF-8";
+
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 6th April 2010
+ */
+
+/******************************************************************************
+ ** Permissions page.                                                        **
+ ******************************************************************************/
+ 
+#userclasstabs {
+    margin: 0 auto;
+    width: 610px;
+}
+
+.permissionbar {
+    clear: both;
+}
+
+.permissionbar h3 {
+    margin-bottom: -10px;
+}
+
+.permissionlistbar {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+.permissionlistbar li {
+    display: inline;
+}
+
+.permissionbutton {
+    float:left;
+    height:85px;
+    width: 85px;
+    margin: 20px;
+}
+
+.permissionicon {
+    padding:5px;
+    border: 0;
+    display: block;
+    margin: 5px auto;
+    height: 40px;
+}
+
+.permissiondialog {
+    overflow: visible;
+}
+
+.permissiondialog .ui-state-error {
+	text-align: left;
+	padding: 3px;
+}
+
+.permbuttonpaneshift {
+	margin-right: -20px;
+}
+
+.permissiondialogloading {
+    text-align: center;
+    font-size: 1.4em;
+}
+
+.permissiondialogloading img {
+    padding: 15px;
+}
+
+.cancelloadingdialog {
+    text-align: center;
+    font-size: 1.4em;
+}
+
+.permlockres {
+    display: none;
+    background-color: #55EA55;
+    border: 1px solid #999999;
+    padding: 20px;
+    margin-top: 10px;
+}
+
+.permlockresfail {
+    display: none;
+    border: 1px solid #999999;
+    background-color: #FF8C8C;
+    padding: 10px;
+}
+
+.dialogwaiting {
+    text-align: center;
+    padding: 25px;
+}
+
+.dialogwaiting img {
+    margin: 0 0 10px;
+}
+
+.dialogcentercontent {
+    text-align: center;
+    width: 275px;
+}
+
+.dialogheader {
+    margin-bottom: 30px;
+}
+
+.dialogheader h3 {
+    display: inline;
+    font-size: 15px;
+}
+
+.dialogheader img {
+    margin: 0px 5px -15px;
+}
+
+.dialogreslist {
+    text-align: left;
+    margin: -15px 0 15px;
+}
+.dialogreslist ul {
+    list-style: none;
+}
+
+.dialogreslist ul li {
+    display: inline;
+}
+
+.dialogreslistspan {
+    display: block;
+    float: left;
+    width: 136px;
+}
+
+.dialogreslisticon {
+    width: 22px;
+    height: 22px;
+    margin: 0 8px -3px;
+}
+
+.queuebutton {
+    width: 100px;
+    height: 35px;
+    margin-bottom: 15px;
+}
+
+.queuerequestloading {
+}
+
+/******************************************************************************
+ ** Legend                                                                   **
+ ******************************************************************************/
+
+
+#iconlegend {
+	top: 150px;
+	position:absolute;
+	width:10em;
+	
+}
+
+.legendheading {
+	padding-left:5px; 
+	font-weight:bold;
+}
+
+	
+#iconlegend ul {
+	list-style-type: none;
+    padding: 0;
+    margin: 0;
+    margin-left: 10px;
+	font-weight:normal;
+    font-size: 0.8em;
+}
+	
+#iconlegend li {
+    margin-top: 5px;
+}
+
+#iconlegend img {
+    padding-right: 10px;
+}
+
+.legendtext {
+	display: none;
+	position: absolute;
+	width: 250px;
+	margin-left: -25px;
+	margin-top: 15px;
+	background-color: #606060;
+	color: #FEFEFE;
+	order:1px solid #000000;
+	padding: 6px;
+	font-weight:normal;
+	-webkit-box-shadow: 0 0 8px #606060;
+	-moz-box-shadow:0 0 8px #606060;
+    box-shadow: 0 0 8px #606060;
+    opacity: 0.75;
+    z-index: 100;
+}	
+
+.legendimage{
+    padding-right: 0px;
+	width: 20%;
+	float: left;
+}
+
+.legendtext .desc{
+	padding-left: 10px;
+	width: 75%;
+	float: left;
+}
+
+
+/******************************************************************************
+ ** Queuing page.                                                            **
+ ******************************************************************************/
+#queueinfo {
+    margin: 25px auto 25px;
+    width: 260px;
+    font-weight: lighter;
+    text-align: center;
+    color: #BCBCBC;
+}
+
+#queuepos {
+    
+    font-size:1.15em;
+}
+
+#queueposnum {
+    font-size: 3.5em;
+    color: red;
+    font-weight: bolder;
+}
+
+#queuetime span{
+    color: #000000;
+}
+
+#queuestalewarning {
+	width: 300px;
+	padding: 10px;
+	margin-top: 40px;
+	margin-left: -20px;
+	padding: 10px;
+	text-align: left;
+}
+
+#queuestalewarning span {
+    float: left;
+    margin-right: 5px;
+}
+
+#queueredirectinfo {
+	width: 300px;
+	padding: 10px;
+	margin-top: 20px;
+	margin-left: -20px;
+	padding: 10px;
+	text-align: left;
+}
+
+#queueredirectinfo span {
+    float: left;
+    margin-right: 5px;
+}
+
+.cdtimer {
+	margin: -25px 0 10px;
+	text-align: center;
+	font-size: 2.3em;
+	font-weight: bold;
+}
+
+.cdtimer span {
+	color: red;
+}
+
+/******************************************************************************
+ ** Permission keys.                                                         **
+ ******************************************************************************/
+#permkeybutton {
+	position: absolute;
+	top: 140px;
+	right: 170px;
+	padding: 5px 10px;
+}
+
+#permkeybutton span {
+	float: left;
+}
+
+#permkeyouter {
+	margin-top: 10px;
+}
+
+#permkeyouter label {
+	width: 40px;
+	font-weight: bold;	
+}
+
+#permkey {
+	width: 285px;
+}
+
+#permkeyloading {
+	display: none;
+	text-align: center;
+}
+
+#permkeyerror {
+	display: none;
+	margin: 0 auto 10px;
+	width: 300px;
+	padding: 5px;
+}
+
+#permkeysuccess {
+	font-weight: bold;
+	text-align: center;
+}
+
+#permkeyerror span {
+	float: left;
+	margin-right: 5px;
+}
+
+ 

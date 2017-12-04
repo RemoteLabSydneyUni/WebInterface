@@ -1,0 +1,116 @@
+@CHARSET "UTF-8";
+
+.bordered {
+	margin:auto;
+	width:600px;
+}
+
+.contacttable {
+	border-collapse:collapse;
+	border-color:#EFEFEF;
+	border-style:solid;
+	border-width:0 2px;
+	width:100%;	
+}
+
+.contacthead {
+	text-align:left;
+	padding-left:15px;
+	background-color:#606060;
+	width:370px;
+	height:40px;
+	color:#FFFFFF;
+}
+
+.grey {
+	background-color:#EFEFEF;
+}
+
+.white {
+	background-color:white;
+}
+
+.contactLabel {
+	width:30%;
+	font-weight:bold;
+}
+	
+.contactValue {
+	width:70%
+	
+}
+		
+.news {
+	padding:15px;
+	font-size:12pt;
+	line-height:20px;
+}
+
+.bordered .h3 {
+	font-size:12pt;
+	font-weight:bold;
+}
+
+#slideshow{
+	position:relative;
+	margin-top:20px;
+	background:white;
+	width:80%;
+	margin-left:30px;
+}
+
+#slideshow #slidesContainer {
+  margin: 0px auto;
+  width:480px;
+  height:370px;
+  overflow:auto; /* allow scrollbar */
+  position:relative;
+}
+
+#slideshow #slidesContainer .slide {
+  margin:0 auto;
+  width:460px; /* reduce by 20 pixels to avoid horizontal scroll */
+  height:370px;
+}
+
+/**
+ * Slideshow controls style rules.
+ */
+.control {
+  display:block;
+  width:39px;
+  height:140px;
+  text-indent:-10000px;
+  position:absolute;
+  cursor: pointer;
+}
+#leftControl {
+  top:140px;
+  left:0;
+  background:transparent no-repeat 0 0;
+}
+#rightControl {
+  top:135px;
+  right:0;
+  background:transparent no-repeat 0 0;
+}
+
+.imagetitle {
+  display: block;
+  margin-left: 20px;
+  background:transparent no-repeat 0 0;
+  font-weight: bold;
+  font-size:small;
+}
+	
+.imagealt {
+  display: block;
+  text-align: centre;
+  margin-left: 20px;
+  background:transparent no-repeat 0 0;
+  font-style: italic;
+  font-size:small;
+}
+	
+
+

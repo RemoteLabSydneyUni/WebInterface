@@ -1,0 +1,235 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 28th February 2010
+ */
+?>
+
+<?php $this->headStyle()->captureStart() ?>
+
+#content {
+	width: 800px;
+	margin: 0 auto;
+}
+
+h1 {
+	margin-top:10px;
+	font-size: 1.6em;
+}
+
+h3 {
+	margin: 20px 0 5px;
+}
+
+ol {
+	list-style: none;
+}
+
+table {
+	border: none;
+	margin: 10px 0 0;
+}
+
+th {
+	font-weight: bold;
+}
+
+th, td {
+	border: 1px solid #000;
+	padding: 4px;
+	text-align: left;
+}
+
+p, ul {
+	margin-top: 10px;
+}
+
+ul {
+	margin-left: 40px;
+}
+
+p.note-p {
+	margin: 10px 40px 10px;
+}
+
+#last-para {
+	margin-bottom: 20px;
+}
+
+#pdf-link {
+	display: block;
+	position: absolute;
+	right: 10px;
+	top: 153px;
+}
+
+<?php $this->headStyle()->captureEnd() ?>
+
+<a href="/uts/user_requirements.pdf" id="pdf-link" class="plaina">As PDF</a>`
+
+<h1>User and System Requirements</h1>
+
+<p>Please note that the settings provided below are specific for the UTS remote labs.</p>
+<table>
+	<tr>
+		<th>Operating system</th>
+		<th>Browser (tested and supported)</th>
+		<th>Plugins</th>
+		<th>Screen Resolution</th>
+	</tr>
+
+	<tr>
+		<td>
+			<ol>
+				<li>Windows XP, Vista and 7</li>
+				<li>Mac OS 10.6 and above</li>
+				<li>Linux</li>
+			</ol>
+		</td>
+
+		<td>
+			<ol>
+				<li>Mozilla Firefox 3.6 and above</li>
+				<li>Chrome (latest version)</li>
+				<li>Internet Explorer 7 and above</li>
+				<li>Apple Safari</li>
+			</ol>
+		</td>
+		<td>
+			<ol>
+				<li>Java 6 (latest update)</li>
+				<li>Adobe Flash 10+</li>
+			</ol>
+		</td>
+		<td>
+			1024x768 and above
+		</td>
+	</tr>
+</table>
+
+<p>For the purpose of using the Remote Labs Rigs, it is assumed that users have access to a
+workstation with properly working operating system. The current workstation must also have Internet
+connectivity, preferably with a bandwidth of at least 512kbps downstream.</p>
+
+<h3>Operating System:</h3>
+<ul>
+	<li>Windows XP, Vista, 7</li>
+	<li>Mac OS 10.6</li>
+	<li>Linux</li>
+</ul>
+
+<h3>Web Browser</h3>
+<p>Remote Labs have been tested with a number of current web browsers. TLI recommends
+Firefox. The user is responsible for ensuring that the current browser version is up to date.</p>
+<ul>
+	<li>Mozilla Firefox 3.6 and above</li>
+	<li>Google Chrome</li>
+	<li>Internet Explorer 7 and above</li>
+	<li>Apple Safari</li>
+</ul>
+
+<p class='note-p'><strong>NOTE:</strong> Internet Explorer 6 is not recommended for use and Remote Labs operates
+in a functionality-limited mode with this browser.  Earlier versions of IE will NOT function. Users are recommended to
+update to the latest of Internet Explorer for your operating system.</p>
+
+<h3>Java Runtime Engine</h3>
+<p>A Java Runtime Engine (JRE) plugin is required to access the Remote Labs through a web browser.
+Java 6.0 is highly recommended with the latest updates applied. If a user is accessing the rig from his/her
+home PC and does not have a JRE installed, the user will be automatically asked to install it.
+Otherwise, the JRE can be found at: <a href='http://www.java.com/en/' target='_blank'>http://www.java.com/en/</a></p>
+
+<p class='note-p'><strong>NOTE: </strong>The rig control Java applet first loads when the user is directed to the
+rig and the user is asked to accept a security warning. If the user does not accept this warning,
+the rig control applet will not function correctly and the rig cannot be used.</p>
+
+<p class='note-p'><strong>NOTE: </strong>In many recent Linux distributions, OpenJDK is packaged as the Java version
+supported by the distribution package manager. OpenJDK may be successfully used as a Remote Labs
+compatible JRE.</p>
+
+<h3>Video Plugins</h3>
+<p>Depending on the rig type used you may encounter one or more of the following video formats:</p>
+<ul>
+	<li>Flash - This requires the Adobe Flash plugin to be installed.</li>
+	<li>Motion JPEG - Depending on the browser this may either play within the browser using no
+	plugins (Firefox, Chrome, Safari) or using a Java applet deployed when selecting this format
+	(Internet Explorer).</li>
+	<li>JPEG Refresh - This uses JPEG images that are automatically refreshed at a user selected
+	period between 0.25 seconds and 2 seconds and requires no plugins.</li>
+	<li>WMP Plugin - This requires the Windows Media Player plugin or equivalent (Totem on Linux
+	or Flip4Mac on Mac OS X) to play the video.</li>
+	<li>VLC Plugin - This requires the VLC plugin to play the video.</li>
+</ul>
+
+<p>If the user is unsure whether any of these plugins are already installed, check the browser settings. On Internet
+Explorer, go to 'Tools' -> 'Manage Add-ons' and on Mozilla Firefox or Google Chrome type 'about:plugins' in the address
+bar and press the 'Enter' key.</p>
+
+<h3>Firewall Issues</h3>
+<p>Often, private networks (such as companies, universities and even home networks) operate through
+firewalls or proxies. Sahara requires the following ports to be open:</p>
+<ul>
+	<li>3389 (outbound): Remote Desktop Connection</li>
+	<li>7070 (outbound): Video Feed</li>
+</ul>
+<p>If very restrictively configured, these may occasionally disallow data coming from the Remote Labs
+servers to a current browser. </p>
+
+<h3>When to Queue</h3>
+<p>Please check the reservation calendar for availability before queuing. Also, please note that “queuing”
+for a rig session may result in long wait times due to the high volume of reservations made by other
+students, academics and Remote Labs technical officers.</p>
+
+<p>As a general note, it is recommended that users utilise the “Queue” option rather than the
+“Reservation” option as this results in higher efficiency for usage and allocation of rigs to more users.</p>
+
+<h3>When to Reserve</h3>
+<p>Reserving a rig session may be helpful for users who do not have time to queue and wait to use a rig.</p>
+
+<p>Reservation can be made through the reservation calendar. Please be aware that the user must log-in
+within 10 minutes of your reservation period, otherwise the system will drop the user’s reservation
+once the timer has expired to allow queuing users to access the rig. The user will not be able to return
+to the rig without either queuing or making another reservation.</p>
+
+<p>Please be aware of the notification in red located on top of the session screen that states, “Your
+session will be terminated if you do not use this rig within XXX seconds”.</p>
+
+<p id="last-para">Also, for users that have created a reservation and do not intend to be use the reservation, please be
+courteous to others and cancel the reservation so they may use the rig in that time period.</p>
+
+<script>
+$(document).ready(function() {
+	$("#actionbar").hide();
+});
+</script>

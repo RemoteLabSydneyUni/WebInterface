@@ -1,0 +1,117 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 9th March 2010
+ */
+
+$this->headLink()->appendStylesheet($this->baseUrl('/css/bookings.css'));
+$this->headScript()->appendFile($this->baseUrl('/js/bookings.js'));
+
+$initScript = "var vp = new Existing('" . $this->mode . "', '" . $this->tz->systemTimezone . "', " . $this->tz->offsetFromUTC . ");\n";
+foreach ($this->tz->supportedTimezones as $t)
+{
+    $initScript .= "vp.addTimezone('" . $t->timezone . "', " . $t->offsetFromSystem . ");\n";
+}
+
+if ($this->bookings)
+{
+    foreach ($this->bookings as $b)
+    {
+        $initScript .= "vp.addBooking(" . $b->bookingID . ", '" . $b->displayName . "', '" . $b->startTime .
+                "', '" . $b->endTime . "', " . ($b->isFinished ? 'true' : 'false') . ", " .
+                ($b->isCancelled ? 'true' : 'false') . ", '" . $b->cancelReason ."');\n";
+    }
+}
+$initScript .= '$(document).ready(function() { vp.initTimezone() });';
+$initScript .= "\ndateFormat = '" . $this->dateFormat . "';\n";
+$this->headScript()->appendScript($initScript);
+?>
+
+<div class="contentheader">
+	<h2>Existing Reservations</h2>
+</div>
+
+<?php if ($this->showTzButton): ?>
+<div id="timezonebutton">
+       <a id="timezone" class="ui-corner-br">
+           <img src="/images/timezone.png" alt="Tz" />
+       </a>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#timezone").click(function() {
+    	vp.displayTzSelector();
+    });
+});
+</script>
+<?php endif; ?>
+
+<?php if ($this->bookings): ?>
+<div id="tabscontainer">
+    <div id="modetabbar">
+    	<!-- <div id="listtab" class="modetab ui-corner-top <?=$this->mode == 'list' ? 'selectedtab' : 'notselectedtab'?>">
+    		List
+    	</div>
+    	<div id='caltab' class="modetab ui-corner-top <?=$this->mode == 'list' ? 'notselectedtab' : 'selectedtab'?>">
+    		Calendar
+    	</div> -->
+    </div>
+    <div id="modecontents" class="ui-corner-all">
+
+	</div>
+</div>
+
+<script type="text/javascript">
+<!--
+$(document).ready(function() {
+	vp.initPage();
+
+//	$("#listtab").click(function() {
+//		vp.changeMode("list");
+//	});
+//
+//	$("#caltab").click(function() {
+//		vp.changeMode("cal");
+//	});
+});
+//-->
+</script>
+
+<?php else: ?>
+<div class="ui-state-error ui-corner-all nobookingsalert">
+	<span class="ui-icon ui-icon-alert"></span>
+	You do not have any existing reservations.
+</div>
+<?php endif; ?>

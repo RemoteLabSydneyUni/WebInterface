@@ -1,0 +1,237 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date <day> July 2010
+ */
+
+$this->headLink()->appendStylesheet($this->baseUrl('/css/admin.css'));
+$this->headScript()->appendFile($this->baseUrl('/js/jquery-ui-timepicker-addon.js'));
+$this->headScript()->appendFile($this->baseUrl('/js/admin.js'));
+?>
+
+<div class="contentheader">
+	<h2><?=$this->stringTransform($this->rig->name, '_', ' ')?></h2>
+</div>
+
+<!-- Rig status -->
+<div id="rigstatus">
+	<?php if ($this->rig->isAlarmed): ?>
+		<img src="<?=$this->baseUrl('/images/balls/red_anime.gif')?>" alt="Alarm" />
+		<h3>Alarm<?php if ($this->rig->offlineReason) echo ': ' . $this->rig->offlineReason?></h3>
+	<?php elseif (!$this->rig->isRegistered): ?>
+		<img src="<?=$this->baseUrl('/images/balls/blue.gif')?>" alt="Alarm" />
+		<h3>Not registered</h3>
+	<?php elseif (!$this->rig->isOnline): ?>
+		<img src="<?=$this->baseUrl('/images/balls/red.gif')?>" alt="Alarm" />
+		<h3>Offline<?php if ($this->rig->offlineReason) echo ': ' . $this->rig->offlineReason?></h3>
+	<?php elseif ($this->rig->isInSession): ?>
+		<img src="<?=$this->baseUrl('/images/balls/yellow.gif')?>" alt="Alarm" />
+		<h3>In use: <?=$this->rig->sessionUser?></h3>
+	<?php else: ?>
+		<img src="<?=$this->baseUrl('/images/balls/green.gif')?>" alt="Alarm" />
+		<h3>Online</h3>
+	<?php endif; ?>
+</div>
+
+<?php if ($this->rig->isInSession): ?>
+<div id="kickpanel">
+	<a id="kickbutton" class="ui-corner-all">
+		<img src="/images/terminate.png" alt="cancel" />
+	</a>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#kickbutton").click(function() {
+		confirmKickSession();
+	});
+});
+</script>
+
+<?php endif; ?>
+
+<a id="createofflinebutton" class="pagebutton ui-corner-all">
+	<span class="ui-icon ui-icon-circle-plus"></span>
+	Add Offline Period
+</a>
+
+
+<div id="rigpanels">
+<!-- Offline times panel. -->
+<div id="offlinepanel" class="panel ui-corner-all">
+    <div class="paneltitle ui-corner-top">
+    	<span class="ui-icon ui-icon-wrench"></span>
+    	Offline Periods
+    </div>
+    <div class="panelcontents">
+	<?php if (is_array($this->rig->offlinePeriods)): ?>
+	<?php foreach ($this->rig->offlinePeriods as $o): ?>
+		<div class="offlineline evenline">
+			<div class="offlinetimes">
+				<div class="offtime"><?=date('d M o H:i', Sahara_DateTimeUtil::getTsFromISO8601($o->start))?></div>
+				<span class="ui-icon ui-icon-arrowthick-1-e offlinearrow"></span>
+				<div class="offtime"><?=date('d M o H:i', Sahara_DateTimeUtil::getTsFromISO8601($o->end))?></div>
+			</div>
+			<div class="offlinereason">
+				<?=$o->reason?>
+			</div>
+			<a id="offline<?=$o->id?>" class="offlinebutton ui-corner-all">
+				<img src="<?=$this->baseUrl("/images/booking_cancel.png")?>" alt="cancel" />
+			</a>
+		</div>
+	<?php endforeach; ?>
+	<?php elseif (is_object($this->rig->offlinePeriods)): ?>
+		<div class="offlineline evenline">
+			<div class="offlinetimes">
+				<div class="offtime"><?=date('d M o H:i', Sahara_DateTimeUtil::getTsFromISO8601($this->rig->offlinePeriods->start))?></div>
+				<span class="ui-icon ui-icon-arrowthick-1-e offlinearrow"></span>
+				<div class="offtime"><?=date('d M o H:i', Sahara_DateTimeUtil::getTsFromISO8601($this->rig->offlinePeriods->end))?></div>
+			</div>
+			<div class="offlinereason">
+				<?=$this->rig->offlinePeriods->reason?>
+			</div>
+			<a id="offline<?=$this->rig->offlinePeriods->id?>" class="offlinebutton ui-corner-all">
+				<img src="<?=$this->baseUrl("/images/booking_cancel.png")?>" alt="cancel" />
+			</a>
+		</div>
+	<?php else: ?>
+		<div class="ui-state ui-state-default ui-corner-all schedinfo">
+    		<span class="ui-icon ui-icon-info panelicon"></span>
+			No offline periods scheduled.
+    	</div>
+	<?php endif; ?>
+    </div>
+</div>
+
+<!-- Rig logs. -->
+<div id="logspanel" class="panel ui-corner-all">
+	 <div class="paneltitle ui-corner-top">
+    	<span class="ui-icon ui-icon-script"></span>
+    	Status Changes
+    </div>
+    <div class="panelcontents">
+    <?php if (is_array($this->rig->lastLogs)): ?>
+    <?php foreach ($this->rig->lastLogs as $r): ?>
+    	<div class="loglineouter">
+        	<div class="logline evenline">
+    			<div class="logts">
+    			    <?=date('d M o H:i:s', Sahara_DateTimeUtil::getTsFromISO8601($r->timestamp))?>:
+    			</div>
+    			<div class="oldstate logstateicon">
+    				<?php if ($r->oldState == "ONLINE"): ?>
+                		<img src="<?=$this->baseUrl('/images/balls/green_tiny.gif')?>" alt="Online" />
+                	<?php elseif ($r->oldState == "OFFLINE"): ?>
+                		<img src="<?=$this->baseUrl('/images/balls/red_tiny.gif')?>" alt="Offline" />
+                	<?php else: ?>
+                		<img src="<?=$this->baseUrl('/images/balls/blue_tiny.gif')?>" alt="Not registered" />
+                	<?php endif; ?>
+    			</div>
+    			<div class="ui-icon ui-icon-arrowthick-1-e logstateicon"> </div>
+    			<div class="newstate logstateicon">
+    				<?php if ($r->newState == "ONLINE"): ?>
+                		<img src="<?=$this->baseUrl('/images/balls/green_tiny.gif')?>" alt="Online" />
+                	<?php elseif ($r->newState == "OFFLINE"): ?>
+                		<img src="<?=$this->baseUrl('/images/balls/red_tiny.gif')?>" alt="Offline" />
+                	<?php else: ?>
+                		<img src="<?=$this->baseUrl('/images/balls/blue_tiny.gif')?>" alt="Not registered" />
+                	<?php endif; ?>
+    			</div>
+    			<div class="logmessage"><?=$r->reason?></div>
+    		</div>
+		</div>
+    <?php endforeach; ?>
+    <?php elseif (is_object($this->rig->lastLogs)): ?>
+		<div class="logline evenline">
+			<div class="logts">
+			    <?=date('d M o H:i:s', Sahara_DateTimeUtil::getTsFromISO8601($this->rig->lastLogs->timestamp))?>:
+			</div>
+			<div class="oldstate logstateicon">
+				<?php if ($this->rig->lastLogs->oldState == "ONLINE"): ?>
+            		<img src="<?=$this->baseUrl('/images/balls/green_tiny.gif')?>" alt="Online" />
+            	<?php elseif ($this->rig->lastLogs->oldState == "OFFLINE"): ?>
+            		<img src="<?=$this->baseUrl('/images/balls/red_tiny.gif')?>" alt="Offline" />
+            	<?php else: ?>
+            		<img src="<?=$this->baseUrl('/images/balls/blue_tiny.gif')?>" alt="Not registered" />
+            	<?php endif; ?>
+			</div>
+			<div class="ui-icon ui-icon-arrowthick-1-e logstateicon"> </div>
+			<div class="newstate logstateicon">
+				<?php if ($this->rig->lastLogs->newState == "ONLINE"): ?>
+            		<img src="<?=$this->baseUrl('/images/balls/green_tiny.gif')?>" alt="Online" />
+            	<?php elseif ($this->rig->lastLogs->newState == "OFFLINE"): ?>
+            		<img src="<?=$this->baseUrl('/images/balls/red_tiny')?>" alt="Offline" />
+            	<?php else: ?>
+            		<img src="<?=$this->baseUrl('/images/balls/blue_tiny.gif')?>" alt="Not registered" />
+            	<?php endif; ?>
+			</div>
+			<div class="logmessage"><?=$this->rig->lastLogs->reason?></div>
+		</div>
+    <?php else: ?>
+    	<div class="ui-state ui-state-default ui-corner-all nologinfo">
+    		<span class="ui-icon ui-icon-info panelicon"></span>
+			No recent rig state changes.
+    	</div>
+    <?php endif; ?>
+    </div>
+</div>
+
+<div style="clear:both"> </div>
+</div>
+
+<script type="text/javascript">
+var rig = '<?=$this->rig->name?>';
+$(document).ready(function() {
+	$(".logline:odd, .offlineline:odd")
+		.removeClass("evenline")
+		.addClass("oddline");
+
+	$(".logline").hover(
+		function() {
+			$(this).addClass("loghover");
+		},
+		function() {
+			$(this).removeClass("loghover");
+		}
+	);
+
+	$("#createofflinebutton").click(function() {
+		confirmCreateOffline();
+	});
+
+	$(".offlinebutton").click(function() {
+		confirmCancelOffline($(this).attr("id").substr(7));
+	});
+});
+</script>

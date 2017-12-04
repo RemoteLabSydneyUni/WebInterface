@@ -1,0 +1,163 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 11th April 2010
+ */
+?>
+<div id="cameras" class="overlayelementhide">
+<?php for ($i = 0, $k = 1; $i < count($this->cameras); $i++, $k++): $cam = $this->cameras[$i]?>
+	<div class="outcamerapanel" style="height:<?=$cam['height'] + 30?>px;overflow:visible">
+	<div id="camerapanel<?=$k?>" class="ui-corner-all camerapanel" style="width:<?=$cam['width']?>px;z-index:100">
+		<div class="sessionpanelheader <?php if($this->draggable) echo 'sessionpaneldraggable'; ?>">
+			<p>
+				<span class="ui-icon ui-icon-video sessionpanelheadericon"></span>
+				<?=$this->stringTransform($this->cameras[$i]['TITLE'], '_', ' ')?>
+			</p>
+			<a id="cameraclose<?=$k?>" class="sessionpanelhide plaina" href="#">
+				<span class="ui-icon ui-icon-close"></span>Turn Off
+			</a>
+		</div>
+		<div id="camera<?=$k?>" class="camera" style="width:<?=$cam['width']?>px;height:<?=$cam['height']?>px;">
+		</div>
+		<div id="cameraInfo<?=$k?>">
+		</div>
+	</div>
+	</div>
+<?php endfor; ?>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+/* Cameras is an array of camera objects. */
+vcameras = new Object();
+
+$(document).ready( function () {
+
+<?php for ($i = 0, $k = 1; $i < count($this->cameras); $i++, $k++):
+    $cam = $this->cameras[$i];
+    $def = $cam['default']?>
+	/* Camera <?=$k?> */
+	cam = new Object();
+	cam.height = <?=$cam['height'] ? $cam['height'] : 320 ?>;
+	cam.width = <?=$cam['width'] ? $cam['width'] : 240 ?>;
+	vcameras[<?=$k?>] = cam;
+
+	/* Set the camera option. First try to use any persisted settings,
+	 * otherwise fallback to the default. */
+	var pOpt = getCameraCookie("CamOption-<?=$k?>");
+	if (pOpt == "")
+	{
+		changeCameraOption(<?=$k?>, "<?=$def?>", "<?=$cam['url'][$def]?>");
+	}
+	else
+	{
+		/* Also update the video formats panel. */
+		var optKnown = false;
+		for (name in cameraFormatTable)
+		{
+			if (cameraFormatTable[name] == pOpt)
+			{
+			 	if (pOpt == 'off')
+			 	{
+				 	$("#camerapanel<?=$k?>").css("display", "none");
+			 	}
+			 	else
+			 	{
+				 	changeCameraOption(<?=$k?>, pOpt, cameraUrlTable["#camera<?=$k?>"][pOpt]);
+			 	}
+
+
+				$("#camselect<?=$k?>").selectmenu("destroy")
+					.val(pOpt)
+					.selectmenu({
+						width: 155,
+						transferClasses: true,
+						style: 'popup'
+					});
+
+
+				optKnown = true;
+
+				break;
+			}
+		}
+
+		if (!optKnown)
+		{
+			/* The cookie stored value is stale, so fall back to the default. */
+			changeCameraOption(<?=$k?>, "<?=$def?>", "<?=$cam['url'][$def]?>");
+		}
+	}
+
+	/* Camera Info click event to hide. */
+	$("#cameraInfo<?=$k?>").click( function () {
+		$("#cameraInfo<?=$k?>").css("display", "none");
+	});
+
+	/* Close click event. */
+	$("#cameraclose<?=$k?>").click( function () {
+		$("#camerapanel<?=$k?>").slideUp("slow", function() {
+			setTimeout("resizeFooter()", 100); // Small timing hack to give the camera option time to undeploy
+		});
+
+		undeploy(<?=$k?>);
+	});
+
+<?php if ($this->draggable): ?>
+	/* Make the camera panel draggable. */
+	$("#camerapanel<?=$k?>").draggable({
+		handle: 'p',
+		opacity: 0.6,
+		stack: ".camerapanel",
+		stop: function(event, ui) {
+			setCameraCookie(event.target.id, ui.position.left + "x" + ui.position.top);
+		}
+	});
+
+	/* Restore the any stored position. */
+	if ((pOpt = getCameraCookie("camerapanel<?=$k?>")) != "")
+	{
+		var pos = pOpt.split("x", 2);
+		$("#camerapanel<?=$k?>").css("left", pos[0] + "px");
+		$("#camerapanel<?=$k?>").css("top", pos[1] + "px");
+	}
+<?php endif; ?>
+
+<?php endfor; ?>
+
+});
+
+//]]>
+</script>

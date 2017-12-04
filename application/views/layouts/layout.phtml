@@ -1,0 +1,107 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 17th March 2010
+ */
+
+$this->headLink()->appendStylesheet($this->baseUrl('css/layout.css'));
+$this->headLink()->appendStylesheet($this->baseUrl('css/smoothness/jquery-ui.custom.css'));
+$this->headLink()->appendStylesheet($this->baseUrl('css/validationEngine.jquery.css'));
+$this->headScript()->prependFile($this->baseUrl('js/jquery.validationEngine-en.js'));
+$this->headScript()->prependFile($this->baseUrl('js/jquery.validationEngine.js'));
+$this->headScript()->prependFile($this->baseUrl('js/jquery-ui.js'));
+$this->headScript()->prependFile($this->baseUrl('js/jquery-min.js'));
+$this->headScript()->appendFile($this->baseUrl('/js/layout.js'));
+
+$config = Zend_Registry::get('config');
+$headerBack = $config->header->background;
+
+
+$this->headScript()->appendScript('
+$(document).ready( function() {
+
+	/* Hack to keep the damn footer down the bottom. */
+	var resizeTimer = null;
+	$(window).bind("resize", function() {
+		if (resizeTimer) clearTimeout(resizeTimer);
+		resizeTimer = setTimeout(resizeFooter, 50);
+	});
+	resizeFooter();
+
+	/* Initialise slide. */
+	if (!/msie|MSIE 6/.test(navigator.userAgent))
+	{
+		menuSlider.init("menu","slide");
+	}
+});
+')
+?>
+
+
+<?php echo $this->doctype('HTML5'); ?>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<?php echo $this->headTitle(); ?>
+	<?php echo $this->headLink(); ?>
+
+	<?php echo $this->headStyle(); ?>
+	<?php echo $this->headScript(); ?>
+	<?php echo $this->headMeta(); ?>
+
+	<!--[if lt IE 9]>
+		<link href="/css/ie-lt9.css" media="screen" rel="stylesheet" type="text/css" >
+	<![endif]-->
+
+	<!--[if lt IE 7]>
+		<link href="/css/ie-eq6.css" media="screen" rel="stylesheet" type="text/css" >
+	<![endif]-->
+</head>
+<body onload="resizeFooter()">
+	<div id="wrapper">
+    	<div id="header"  style="<?php if ($headerBack != null):
+    			echo "background-image:url(".$this->baseUrl($headerBack)."); background-repeat: no-repeat;";
+    			endif; ?>" >
+    		<?php echo $this->render('_header.phtml'); ?>
+    	</div>
+    	<?php echo $this->render('_navbar.phtml')?>
+    	<?php echo $this->render('_actionbar.phtml')?>
+    	<div id="content">
+    		<?php echo $this->layout()->content; ?>
+    	</div>
+		<?php echo $this->render('_footer.phtml'); ?>
+	</div>
+</body>
+</html>

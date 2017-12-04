@@ -1,0 +1,1090 @@
+
+@CHARSET "UTF-8";
+
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 21st February 2010
+ */
+
+* {
+    padding: 0;
+    margin: 0;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 99%;
+}
+
+body {
+    height: 100%;
+    min-height: 100;
+    background-color: #FFFFFF;
+}
+
+fieldset table {
+    width: 100%
+}
+
+td {
+    padding: 5px;
+    vertical-align: top;
+}
+
+fieldset {
+    border: 0px;
+}
+
+legend {
+    display: none;
+}
+
+/******************************************************************************
+ ** Common styles                                                            **
+ *****************************************************************************/
+.commonbutton, .common-button {
+	display: block;
+    padding: 5px;
+    text-align: center;
+    -moz-border-radius: 4px; 
+    -webkit-border-radius: 4px;
+     border-radius: 4px;
+    border: 1px solid #B5B5B5;
+    background: #EFEFEF;
+    -moz-box-shadow: 0 0 4px #B5B5B5;
+    -webkit-box-shadow: 0 0 4px #B5B5B5;
+    box-shadow: 0 0 4px #B5B5B5;
+    cursor: pointer;
+    color: #606060;
+    text-decoration: none;
+    position: relative;
+}
+
+.commonbutton:hover, .common-button:hover {
+	color: #000000;
+	-moz-box-shadow: 0 0 4px #606060;
+    -webkit-box-shadow: 0 0 4px #606060;
+    box-shadow: 0 0 4px #606060;
+}
+
+.commonbutton img, .common-button img {
+	border: 0 none;
+}
+
+.commonhover {
+	display: none;
+	position: absolute;
+	width: 200px;
+	bottom: 5px;
+	left: 20px;
+	padding: 8px;
+	background-color: #606060;
+	color: #FEFEFE;
+	box-shadow: 0 0 8px #606060;
+	-moz-box-shadow: 0 0 8px #606060;
+	-webkit-box-shadow: 0 0 8px #606060;
+	-moz-border-radius: 4px; 
+    -webkit-border-radius: 4px;
+     border-radius: 4px;
+	font-size: 0.8em;
+	text-align: left;
+	z-index: 100;
+	opacity: 0.7;
+	-moz-opacity: 0.7;
+	filter: alpha(opacity=70); 
+}
+
+.commonpanel, .common-box {
+	border: 1px solid #B5B5B5;
+	box-shadow: 0 0 4px #B5B5B5;
+}
+
+.common-box {
+	border-radius: 4px;
+}
+
+.commonpanel .commonpanelheader, .common-title {
+	background-color: #EFEFEF;
+	padding: 8px;
+	border-bottom: 1px solid #B5B5B5;
+}
+
+.commonpanel .commonpanelheader span, .common-title .ui-icon {
+	float: left;
+	margin-right: 5px;
+}
+
+.commonpanel .commonpanelcontents {
+	padding: 5px;
+}
+
+
+/******************************************************************************
+ ** Form styling.                                                            **
+ ******************************************************************************/
+
+.saharaform div, .sahara-form div {
+	margin: 7px 5px;
+}
+
+.saharaform label, .sahara-form label {
+	display: inline-block;
+	float: left;
+	margin-top: 5px;
+	width: 72px;
+}
+
+.saharaform input, .saharaform textarea, .saharaform select,
+.sahara-form input, .sahara-form textarea, .sahara-form select {
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	padding: 5px;
+	background: url("../images/linear_grad.png") repeat-x scroll 0 0 #FDFDFD;
+}
+
+.saharaform input:disabled, .sahara-form input:disabled {
+	opacity: 0.4;
+}
+
+/******************************************************************************
+ ** Guidance bubbles.                                                        **
+ ******************************************************************************/
+ 
+.guidance-button {
+	float: right;
+	width: 16px;
+	height: 16px;
+	background-color: #EFEFEF;
+	border: 1px solid #B5B5B5;
+	box-shadow: 0 0 2px #B5B5B5;
+	border-radius: 3px;
+}
+
+.guidance-button:hover {
+	box-shadow: 0 0 2px #606060;
+	cursor: pointer;
+}
+
+.guidance-button p {
+	display:none;
+}
+
+.guidance-bubble {
+	position: absolute;
+	width: 200px;
+	border: 2px solid #EEEEEE;
+	text-align: left;
+	z-index: 100;
+	opacity: 0.9;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.guidance-bubble-error {
+	background-color: #BA5454;
+}
+
+.guidance-bubble-info {
+	background-color: #F8EC86;
+}
+
+.guidance-bubble-text {
+	padding: 3px;
+	color: #EEEEEE;
+	font-size: 10pt;
+	opacity: 1;
+}
+
+.guidance-bubble-info .guidance-bubble-text {
+	color: #000000;
+}
+
+.guidance-bubble-arrow {
+	position: absolute;
+	width: 12px;
+	height: 12px;
+}
+
+.guidance-bubble-arrow-line {
+	position: absolute;
+}
+
+.guidance-bubble-error .guidance-bubble-arrow-line  {
+	background-color: #BA5454;
+}
+
+.guidance-bubble-info .guidance-bubble-arrow-line {
+	background-color: #F8EC86;
+}
+
+.guidance-bubble-arrow-left .guidance-bubble-arrow-line, 
+.guidance-bubble-arrow-right .guidance-bubble-arrow-line {
+	border-top: 2px solid #EEEEEE;
+	border-bottom: 2px solid #EEEEEE;
+	width: 1px;
+}
+
+.guidance-bubble-arrow-left {
+	left: -10px;
+	top: 5px;
+}
+
+.guidance-bubble-arrow-left .guidance-bubble-arrow-line0 {
+	height: 12px;
+	right: 2px;
+	top: -1px;
+}
+
+.guidance-bubble-arrow-left .guidance-bubble-arrow-line1 {
+	height: 10px;
+	right: 3px;
+	top: 0;
+}
+
+.guidance-bubble-arrow-left .guidance-bubble-arrow-line2 {
+	height: 8px;
+	right: 4px;
+	top: 1px;
+}
+
+.guidance-bubble-arrow-left .guidance-bubble-arrow-line3 {
+	height: 6px;
+	right: 5px;
+	top: 2px;
+}
+
+.guidance-bubble-arrow-left .guidance-bubble-arrow-line4 {
+	height: 4px;
+	right: 6px;
+	top: 3px;
+}
+
+.guidance-bubble-arrow-left .guidance-bubble-arrow-line5 {
+	height: 2px;
+	right: 7px;
+	top: 4px;
+}
+
+.guidance-bubble-arrow-left .guidance-bubble-arrow-line6 {
+	height: 0px;
+	right: 8px;
+	top: 5px;
+}
+
+.guidance-bubble-arrow-left .guidance-bubble-arrow-line7 {
+	height: 0px;
+	right: 9px;
+	top: 6px;
+	border-bottom: none;
+}
+
+.guidance-bubble-arrow-right {
+	right: -10px;
+	top: 5px;
+}
+
+.guidance-bubble-arrow-right .guidance-bubble-arrow-line0 {
+	height: 12px;
+	left: 2px;
+	top: -1px;
+}
+
+.guidance-bubble-arrow-right .guidance-bubble-arrow-line1 {
+	height: 10px;
+	left: 3px;
+	top: 0;
+}
+
+.guidance-bubble-arrow-right .guidance-bubble-arrow-line2 {
+	height: 8px;
+	left: 4px;
+	top: 1px;
+}
+
+.guidance-bubble-arrow-right .guidance-bubble-arrow-line3 {
+	height: 6px;
+	left: 5px;
+	top: 2px;
+}
+
+.guidance-bubble-arrow-right .guidance-bubble-arrow-line4 {
+	height: 4px;
+	left: 6px;
+	top: 3px;
+}
+
+.guidance-bubble-arrow-right .guidance-bubble-arrow-line5 {
+	height: 2px;
+	left: 7px;
+	top: 4px;
+}
+
+.guidance-bubble-arrow-right .guidance-bubble-arrow-line6 {
+	height: 0px;
+	left: 8px;
+	top: 5px;
+}
+
+.guidance-bubble-arrow-right .guidance-bubble-arrow-line7 {
+	height: 0px;
+	left: 9px;
+	top: 6px;
+	border-bottom: none;
+}
+
+
+.guidance-bubble-arrow-top-left .guidance-bubble-arrow-line, 
+.guidance-bubble-arrow-top-center .guidance-bubble-arrow-line {
+	border-left: 2px solid #EEEEEE;
+	border-right: 2px solid #EEEEEE;
+	height: 1px;
+}
+
+.guidance-bubble-arrow-top-center {
+	left: 90px;
+	top: -10px;
+}
+
+.guidance-bubble-arrow-top-left {
+	left: 20px;
+	top: -10px;
+}
+
+.guidance-bubble-arrow-top-left .guidance-bubble-arrow-line0,
+.guidance-bubble-arrow-top-center .guidance-bubble-arrow-line0 {
+	width: 12px;
+	bottom: 2px;
+	left: -1px;
+}
+
+.guidance-bubble-arrow-top-left .guidance-bubble-arrow-line1,
+.guidance-bubble-arrow-top-center .guidance-bubble-arrow-line1 {
+	width: 10px;
+	bottom: 3px;
+	left: 0;
+}
+
+.guidance-bubble-arrow-top-left .guidance-bubble-arrow-line2,
+.guidance-bubble-arrow-top-center .guidance-bubble-arrow-line2 {
+	width: 8px;
+	bottom: 4px;
+	left: 1px;
+}
+
+.guidance-bubble-arrow-top-left .guidance-bubble-arrow-line3,
+.guidance-bubble-arrow-top-center .guidance-bubble-arrow-line3 {
+	width: 6px;
+	bottom: 5px;
+	left: 2px;
+}
+
+.guidance-bubble-arrow-top-left .guidance-bubble-arrow-line4,
+.guidance-bubble-arrow-top-center .guidance-bubble-arrow-line4 {
+	width: 4px;
+	bottom: 6px;
+	left: 3px;
+}
+
+.guidance-bubble-arrow-top-left .guidance-bubble-arrow-line5,
+.guidance-bubble-arrow-top-center .guidance-bubble-arrow-line5 {
+
+	width: 2px;
+	bottom: 7px;
+	left: 4px;
+}
+
+.guidance-bubble-arrow-top-left .guidance-bubble-arrow-line6,
+.guidance-bubble-arrow-top-center .guidance-bubble-arrow-line6 {
+
+	width: 0px;
+	bottom: 8px;
+	left: 5px;
+}
+
+.guidance-bubble-arrow-top-left .guidance-bubble-arrow-line7,
+.guidance-bubble-arrow-top-center .guidance-bubble-arrow-line7 {
+	width: 0px;
+	bottom: 9px;
+	left: 6px;
+	border-right: none;
+}
+
+/******************************************************************************
+ ** Page blocks                                                              **
+ *****************************************************************************/
+#wrapper { 
+    width: 958px;
+    min-width: 922px;
+    margin: 0 auto;
+    height: 100%;
+    min-height: 100%;
+    position: relative;
+}
+
+/******************************************************************************
+ ** Page Header                                                              **
+ *****************************************************************************/
+#header {
+    color: #333;
+    padding: 10px;
+    height: 60px;
+    position: relative;
+}
+
+.headerimg {
+    float: left;
+    padding-right: 10px;
+    height: 100%;
+    margin-top: 7px;
+}
+
+.headerimg a img {
+	border: 0;
+}
+
+#headername {
+}
+
+#headername h1 {
+    float: left;
+    margin-top: 10px;
+    margin-left: 60px;
+    font-weight: bold;
+    font-size: 35px;
+}
+
+#labshareimg {
+    float: right;
+    margin-top: -7px;
+    margin-right:10px;
+    position: relative;
+}
+
+#labshareimg div {
+	position: absolute;
+	top: 0px;
+	left: -15px;
+	font-weight: normal;
+	font-size: 0.88em;
+}
+
+#labshareimg img {
+	border: 0;
+}
+
+/******************************************************************************
+ ** Navigation Menu                                                          **
+ *****************************************************************************/
+.menu {
+    position:relative; 
+    background-color: #EFEFEF;
+    height:35px; 
+    border: 1px solid #B5B5B5;
+    -moz-box-shadow: 0 1px 3px #B5B5B5;
+    -webkit-box-shadow: 0 1px 3px #B5B5B5;
+    box-shadow: 0 1px 3px #B5B5B5;
+}
+
+.menu ol {
+    list-style:none; 
+    z-index:10;
+    position:absolute; 
+    z-index:100; 
+    padding:9px 5px;
+}
+
+.menu li {
+    float:left
+}
+
+#slide {
+    position:absolute;
+    bottom:0; 
+    height:4px; 
+    background:#000000; 
+    z-index:10
+}
+
+/******************************************************************************
+ ** Right action button menu                                                 **
+ *****************************************************************************/
+#actionbar {
+    position: absolute;
+    right: 0px;
+}
+
+#actionbarlist {
+    list-style: none;
+}
+
+.actiondialogbutton {
+    width: 75px;
+    height: 75px;
+    margin-top: 10px;
+    font-size: 0.8em;
+}
+
+a.actiondialogbutton img {
+    width: 40px;
+    height: 40px;
+    border-width: 0px;
+}
+
+a.plaina, a.plaina:active, a.plaina:visited {
+    text-decoration:none; 
+    color: #606060; 
+}
+
+a.plaina:hover {
+    color: #010101;
+}
+
+.apad {
+    padding: 10px;
+}
+
+.alrpad {
+    padding: 0px 10px 0px;
+}
+
+.logoutsecondary {
+    margin-top: 10px;
+}
+
+.logoutsecondary span {
+    float: left;
+    margin-right: 10px;
+}
+
+#actionbar .actionbardialog {
+	display: none;
+}
+
+/******************************************************************************
+ ** Page Content                                                             **
+ *****************************************************************************/
+#content {
+    padding-bottom: 40px;
+}
+
+.contentheader {
+    text-align:center;
+    margin-top: 10px;
+}
+
+.contentheader h2 {
+    padding: 10px;
+    font-size: 1.7em;
+    font-weight: bold;
+    text-shadow: 3px 3px 3px #C0C0C0;
+}
+
+.contentheader h3 {
+    padding: 10px;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+.centercontent {
+    margin: 0 auto;
+}
+
+/******************************************************************************
+ ** Page Footer                                                              **
+ *****************************************************************************/
+#footer {
+    margin: 0px auto;
+    font-size: 0.8em;
+    position: absolute;
+    bottom: 0px;
+    padding: 6px;
+    background-color: #EFEFEF;
+    width: 944px;
+    border-style: solid;
+    border-color: #B5B5B5;
+    border-width: 1px 1px 0px;
+    -moz-box-shadow: 0 -2px 2px #B5B5B5;
+    -webkit-box-shadow: 0 -2px 2px #B5B5B5;
+    box-shadow: 0 -2px 2px #B5B5B5;
+    overflow: hidden;
+    height: 15px
+}
+
+#footer img {
+	margin: 0 5px -11px;
+	border: none;
+}
+
+#footer div {
+	position: absolute;
+	top: 6px;
+	right: 5px;
+}
+
+/******************************************************************************
+ ** Alert banner.                                                            **
+ *****************************************************************************/
+.alertdiv {
+    width: 310px;
+}
+
+.alertspan {
+    float: left;
+    margin: 2px 4px 0px;
+}
+
+.alertp {
+    padding: 6px;
+}
+
+.alertlist {
+    margin-left: 35px;
+    list-style: square;
+    padding-bottom: 10px;
+}
+
+/******************************************************************************
+ ** Help buttons.                                                            **
+ ******************************************************************************/
+.helptitle {
+	height: 18px;
+	margin-bottom: 5px;
+	margin-top: 10px;
+	padding: 5px;
+	font-weight: bold;
+	color: #222222;
+}
+
+.helpdialog {
+
+}
+
+.helpcontents p {
+	padding: 0href="#" 10px 4px;
+}
+
+.helpcontents p span {
+	font-weight: bold;
+}
+.helplink a {
+	display: block;
+	margin: 10px 5px 0;
+	font-weight: bold;
+	pointer: cursor;
+	color: #555555;
+}
+
+.helplink span {
+	float: left;
+	margin-right: 5px;
+}
+
+.helplist {
+	list-style: none;
+}
+
+.helpclick, .helpclickinner {
+	display: block;
+	padding: 3px;
+	cursor: pointer;
+	margin: 2px 5px;
+	border: 1px solid #AAAAAA;
+	color: #444444;
+}
+
+.helpclicka {
+	display: block;
+	display: pointer;
+	width: 100%;
+}
+
+.helpclick:hover {
+	color: #000000;
+}
+
+.helpclick span {
+	float: left;
+	margin-right: 5px;
+}
+
+.helpcontent, .helpcontentinner {
+	display: none;
+	margin: 5px 20px;
+}
+
+.helplinklink:focus {
+	border: 0 none;
+}
+
+#feedback_form_sent {
+	display: none;
+	padding: 20px;
+	text-align: center;
+	background-color: #55EA55;
+	border: 1px solid #B5B5B5;
+	color: #606060;
+	margin: 4px;
+}
+
+#feedback_form input, #feedback_form textarea {
+	width: 470px;
+}
+
+/******************************************************************************
+ ** Login page.                                                              **
+ ******************************************************************************/
+ 
+#loginformpanel {
+	width: 300px;
+	margin: 20px auto 0;
+}
+
+#loginform input {
+	width: 185px;
+	margin-left: 5px;
+}
+
+#loginerrors {
+	margin: 20px auto;
+}
+
+#loginsubmit button, #loginback button {
+	width: 75px;
+	height: 40px;
+}
+
+#loginsubmit {
+	margin-top: 10px;
+	float: right;
+}
+
+#loginback {
+	margin-top: 10px;
+	float: left;
+}
+
+#loginbuttons {
+	margin: 40px auto;
+	width: 400px;	
+}
+
+#shibbutton {
+	float: left;
+}
+
+#shibnolocalbutton {
+	margin: 0 auto;
+}
+
+#localbutton {
+	float: right;
+}
+
+.loginbutton {
+	width: 150px;
+	height: 150px;
+}
+
+#localloginform {
+	display: none;
+}
+
+#loginbuttons .commonhover {
+	opacity: 0.8;
+	bottom: -60px;
+	right: -20px;
+}
+
+/* ----------------------------------------------------------------------------
+ * -- Message box                                                            --
+ * ---------------------------------------------------------------------------- */  
+
+.message-box {
+	position: absolute;
+	width: 190px;
+	border: 2px solid #EEEEEE;
+	text-align: left;
+	z-index: 100;
+	opacity: 0.9;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.message-box-error {
+	background-color: #BA5454;
+}
+
+.message-box-info {
+	background-color: #F8EC86;
+}
+
+.message-box-backing {
+	background-color: #333333;
+}
+
+.message-box-text {
+	padding: 6px;
+	color: #EEEEEE;
+	font-size: 10pt;
+	opacity: 1;
+}
+
+.message-box-info .message-box-text {
+	color: #000000;
+}
+
+.message-box-arrow {
+	position: absolute;
+	width: 12px;
+	height: 12px;
+}
+
+.message-box-arrow-line {
+	position: absolute;
+}
+
+.message-box-error .message-box-arrow-line  {
+	background-color: #BA5454;
+}
+
+.message-box-info .message-box-arrow-line {
+	background-color: #F8EC86;
+}
+
+.message-box-backing .message-box-arrow-line {
+	background-color: #333333;
+}
+
+.message-box-arrow-left .message-box-arrow-line, 
+.message-box-arrow-right .message-box-arrow-line,
+.message-box-arrow-right-bottom .message-box-arrow-line {
+	border-top: 2px solid #EEEEEE;
+	border-bottom: 2px solid #EEEEEE;
+	width: 1px;
+}
+
+.message-box-arrow-left {
+	left: -10px;
+	top: 5px;
+}
+
+.message-box-arrow-left .message-box-arrow-line0 {
+	height: 12px;
+	right: 2px;
+	top: -1px;
+}
+
+.message-box-arrow-left .message-box-arrow-line1 {
+	height: 10px;
+	right: 3px;
+	top: 0;
+}
+
+.message-box-arrow-left .message-box-arrow-line2 {
+	height: 8px;
+	right: 4px;
+	top: 1px;
+}
+
+.message-box-arrow-left .message-box-arrow-line3 {
+	height: 6px;
+	right: 5px;
+	top: 2px;
+}
+
+.message-box-arrow-left .message-box-arrow-line4 {
+	height: 4px;
+	right: 6px;
+	top: 3px;
+}
+
+.message-box-arrow-left .message-box-arrow-line5 {
+	height: 2px;
+	right: 7px;
+	top: 4px;
+}
+
+.message-box-arrow-left .message-box-arrow-line6 {
+	height: 0px;
+	right: 8px;
+	top: 5px;
+}
+
+.message-box-arrow-left .message-box-arrow-line7 {
+	height: 0px;
+	right: 9px;
+	top: 6px;
+	border-bottom: none;
+}
+
+.message-box-arrow-right {
+	right: -10px;
+	top: 5px;
+}
+
+.message-box-arrow-right-bottom {
+	right: -10px;
+	bottom: 5px;
+}
+
+.message-box-arrow-right .message-box-arrow-line0,
+.message-box-arrow-right-bottom .message-box-arrow-line0 {
+	height: 12px;
+	left: 2px;
+	top: -1px;
+}
+
+.message-box-arrow-right .message-box-arrow-line1,
+.message-box-arrow-right-bottom .message-box-arrow-line1 {
+	height: 10px;
+	left: 3px;
+	top: 0;
+}
+
+.message-box-arrow-right .message-box-arrow-line2,
+.message-box-arrow-right-bottom .message-box-arrow-line2 {
+	height: 8px;
+	left: 4px;
+	top: 1px;
+}
+
+.message-box-arrow-right .message-box-arrow-line3,
+.message-box-arrow-right-bottom .message-box-arrow-line3 {
+	height: 6px;
+	left: 5px;
+	top: 2px;
+}
+
+.message-box-arrow-right .message-box-arrow-line4,
+.message-box-arrow-right-bottom .message-box-arrow-line4 {
+	height: 4px;
+	left: 6px;
+	top: 3px;
+}
+
+.message-box-arrow-right .message-box-arrow-line5,
+.message-box-arrow-right-bottom .message-box-arrow-line5 {
+	height: 2px;
+	left: 7px;
+	top: 4px;
+}
+
+.message-box-arrow-right .message-box-arrow-line6,
+.message-box-arrow-right-bottom .message-box-arrow-line6 {
+	height: 0px;
+	left: 8px;
+	top: 5px;
+}
+
+.message-box-arrow-right .message-box-arrow-line7,
+.message-box-arrow-right-bottom .message-box-arrow-line7 {
+	height: 0px;
+	left: 9px;
+	top: 6px;
+	border-bottom: none;
+}
+
+
+.message-box-arrow-top-left .message-box-arrow-line, 
+.message-box-arrow-top-center .message-box-arrow-line {
+	border-left: 2px solid #EEEEEE;
+	border-right: 2px solid #EEEEEE;
+	height: 1px;
+}
+
+.message-box-arrow-top-center {
+	left: 90px;
+	top: -10px;
+}
+
+.message-box-arrow-top-left {
+	left: 20px;
+	top: -10px;
+}
+
+.message-box-arrow-top-left .message-box-arrow-line0,
+.message-box-arrow-top-center .message-box-arrow-line0 {
+	width: 12px;
+	bottom: 2px;
+	left: -1px;
+}
+
+.message-box-arrow-top-left .message-box-arrow-line1,
+.message-box-arrow-top-center .message-box-arrow-line1 {
+	width: 10px;
+	bottom: 3px;
+	left: 0;
+}
+
+.message-box-arrow-top-left .message-box-arrow-line2,
+.message-box-arrow-top-center .message-box-arrow-line2 {
+	width: 8px;
+	bottom: 4px;
+	left: 1px;
+}
+
+.message-box-arrow-top-left .message-box-arrow-line3,
+.message-box-arrow-top-center .message-box-arrow-line3 {
+	width: 6px;
+	bottom: 5px;
+	left: 2px;
+}
+
+.message-box-arrow-top-left .message-box-arrow-line4,
+.message-box-arrow-top-center .message-box-arrow-line4 {
+	width: 4px;
+	bottom: 6px;
+	left: 3px;
+}
+
+.message-box-arrow-top-left .message-box-arrow-line5,
+.message-box-arrow-top-center .message-box-arrow-line5 {
+
+	width: 2px;
+	bottom: 7px;
+	left: 4px;
+}
+
+.message-box-arrow-top-left .message-box-arrow-line6,
+.message-box-arrow-top-center .message-box-arrow-line6 {
+
+	width: 0px;
+	bottom: 8px;
+	left: 5px;
+}
+
+.message-box-arrow-top-left .message-box-arrow-line7,
+.message-box-arrow-top-center .message-box-arrow-line7 {
+	width: 0px;
+	bottom: 9px;
+	left: 6px;
+	border-right: none;
+}

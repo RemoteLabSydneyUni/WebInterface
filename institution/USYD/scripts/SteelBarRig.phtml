@@ -1,0 +1,25 @@
+<?php
+
+/* LabVIEW interface implementation. */
+$this->headScript()->appendFile($this->baseUrl('/js/SteelBar/SteelBar.js'));
+$this->headLink()->appendStylesheet($this->baseUrl('/css/Basic/Base.css'));
+
+/* Canvas compatability implementation for Internet Explorer 8 and earlier. */
+$this->headScript()->appendFile($this->baseUrl('js/excanvas.js'),
+        'text/javascript',
+        array('conditional' => 'lt IE 9')
+);
+?>
+
+<div id="LabVIEW-control-anchor">
+    <!-- Interface goes here! -->
+</div>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+	var inter = new LabVIEWControl("LabVIEW-control-anchor");
+	inter.setup();
+	inter.run();
+});
+</script>

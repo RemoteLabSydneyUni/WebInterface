@@ -1,0 +1,116 @@
+<?php
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 12th February 2010
+ */
+$this->headLink()->appendStylesheet($this->baseUrl('/css/jquery.ui.selectmenu.css'));
+$this->headScript()->appendFile($this->baseUrl('/js/jquery.ui.selectmenu.js'));
+?>
+
+<div id="cameracontrolpanel" style="left:-185px" class="sessionpanel ui-corner-all leftpush overlayelementhide">
+	<div class="sessionpanelheader">
+		<p><span class="ui-icon ui-icon-image sessionpanelheadericon"></span>Video Formats</p>
+	</div>
+	<div id="camerapanelcontent">
+    <?php for ($i = 0, $k = 1; $i < count($this->cameras); $i++, $k++): ?>
+    	<div id="camformat<?=$k?>" class="cameraformat">
+            <span class="camformatlabel"><?=$this->stringTransform($this->cameras[$i]['TITLE'], '_', ' ')?></span>
+    		<form id="camform<?=$k?>">
+            	<select id="camselect<?=$k?>" class='cameraselect'>
+        		<?php foreach ($this->cameras[$i]['formats'] as $form => $desc): ?>
+        			<option value="<?=$form?>" <?php if ($form == $this->cameras[$i]['default']) echo 'selected="yes"'?>><?=$desc?></option>
+        		<?php endforeach; ?>
+        		</select>
+    		</form>
+		</div>
+	<?php endfor; ?>
+	<?php if ($this->draggable): ?>
+		<button id="camreset">Reset Positions</button>
+	<?php endif; ?>
+	</div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+
+cameraRigType = '<?=$this->rigType?>';
+
+/* Look up table of format options to stream names. */
+cameraFormatTable = new Array();
+<?php foreach ($this->formats as $f => $opt):?>
+	cameraFormatTable["<?=$opt?>"] = "<?=$f?>";
+<?php endforeach; ?>
+
+cameraUrlTable = new Array();
+$(document).ready( function() {
+<?php for ($i = 0, $k = 1; $i < count($this->cameras); $i++, $k++): ?>
+
+	/* Camera URL lookup table. */
+	cameraUrlTable["#camera<?=$k?>"] = new Array();
+	<?php foreach ($this->cameras[$i]['url'] as $f => $url):?>
+		cameraUrlTable["#camera<?=$k?>"]["<?=$f?>"] = "<?=$url?>";
+	<?php endforeach;?>
+
+	$("#camselect<?=$k?>").change( function() {
+		var formatOption = $(this).val();
+		changeCameraOption(<?=$k?>, formatOption, cameraUrlTable["#camera<?=$k?>"][formatOption]);
+	});
+
+<?php endfor; ?>
+
+	$("#camerapanelcontent select").selectmenu({
+		width: 155,
+		transferClasses: true,
+		style: 'popup'
+	});
+
+<?php if ($this->draggable): ?>
+	/* Reset position button. */
+	$("#camreset").button();
+	$("#camreset").click( function(){
+		for (id in cameraUrlTable)
+		{
+			$(id).parent().css("top", 0);
+			$(id).parent().css("left", 0);
+
+			/* Clear any stored position. */
+			setCameraCookie($(id).parent().attr('id'), "0x0");
+		}
+	});
+<?php endif; ?>
+});
+
+//]]>
+</script>

@@ -1,0 +1,417 @@
+@CHARSET "UTF-8";
+
+/**
+ * SAHARA Web Interface
+ *
+ * User interface to Sahara Remote Laboratory system.
+ *
+ * @license See LICENSE in the top level directory for complete license terms.
+ *
+ * Copyright (c) 2010, University of Technology, Sydney
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the University of Technology, Sydney nor the names
+ *    of its contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Michael Diponio (mdiponio)
+ * @date 30th January 2010
+ */
+ 
+/*******************************************************************************
+ ** Type admin page                                                           **
+ *******************************************************************************/
+#typelistcontainer {
+	margin: 0 auto;
+	width: 713px;
+	text-align: left;
+	border: solid 1px #B5B5B5;
+}
+
+#typelistheader {
+	padding: 7px 15px 5px;
+	margin: 3px;
+}
+
+#typelist {
+	list-style: none;
+}
+
+#typelist li {
+	display: inline;
+}
+
+.type {
+	display: block;
+	height: 100px;
+    width: 100px;
+	float: left;
+	margin: 20px;
+	text-align: center;
+	border: 1px solid #B5B5B5;
+	background-color: #EFEFEF;
+	-moz-box-shadow: 0 0 4px #B5B5B5;
+	-webkit-box-shadow: 0 0 4px #B5B5B5;
+	box-shadow: 0 0 4px #B5B5B5;
+	cursor: pointer;
+}
+
+.type:hover {
+	-moz-box-shadow: 0 0 4px #606060;
+	-webkit-box-shadow: 0 0 4px #606060;
+	box-shadow: 0 0 4px #606060;
+}
+
+.type img {
+	display: block;
+	margin: 15px 25px 0;
+}
+
+.typedialog {
+	display: none;
+}
+
+.typedialogcontent {
+	padding: 10px;
+	text-align: center;
+}
+
+.statusstring {
+	font-weight: bold;
+}
+
+.riglist {
+	list-style: none;
+	width: 100%;
+}
+
+.riglist li {
+	display: inline;
+}
+
+.rigbutton {
+	display: block;
+	float: left;
+	width: 75px;
+	height: 75px;
+	text-decoration: none;
+	margin: 5px;
+	text-align: center;
+	border: 1px solid #B5B5B5;
+	background-color: #EFEFEF;
+	-moz-box-shadow: 0 0 4px #B5B5B5;
+	-webkit-box-shadow: 0 0 4px #B5B5B5;
+	box-shadow: 0 0 4px #B5B5B5;
+	cursor: pointer;
+}
+
+.rigbutton img {
+	border: none;
+}
+
+/*******************************************************************************
+ ** Rig admin page.                                                           **
+ *******************************************************************************/
+#rigstatus {
+	width: 400px;
+	margin: 0 auto;
+	text-align: center;
+}
+
+#rigpanels {
+	margin: 20px auto 0;
+	width: 720px;
+}
+
+#offlinepanel {
+	float: left;
+}
+
+#logspanel {
+	float: right;
+}
+
+.panel {
+	width: 350px;
+	height: 568px;
+	border: 1px solid #B5B5B5;
+	-moz-box-shadow: 0 0 4px #B5B5B5;
+	-webkit-box-shadow: 0 0 4px #B5B5B5;
+	box-shadow: 0 0 4px #B5B5B5;
+}
+
+.paneltitle {
+	padding: 5px;
+	background-color: #EFEFEF;
+	border-bottom: 1px solid #B5B5B5;
+	color: #606060;
+}
+
+.paneltitle span, .panelicon {
+	float: left;
+	margin-right: 5px;
+}
+
+.panelcontents {
+	overflow-y: auto;
+}
+
+.nologinfo, .schedinfo {
+	margin: 25px;
+	padding: 5px;
+}
+
+.loglineouter, .logline {
+	height: 53px;
+	border-bottom: 1px solid #B5B5B5;
+	overflow: hidden;
+}
+
+
+
+.evenline {
+	background-image: linear-gradient(top, #FFFFFF, #EEEEEE);
+	background-image: -moz-linear-gradient(top, #EEEEEE, #FFFFFF);
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFFF), color-stop(1, #EEEEEE));
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#EEEEEE');
+	background-color: #EEEEEE;
+}
+
+.oddline {
+	background-image: linear-gradient(top, #FFFFFF, #EEEEEE);
+	background-image: -moz-linear-gradient(top, #FFFFFF, #EEEEEE);
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFFF), color-stop(1, #EEEEEE));
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#EEEEEE');
+	background-color: #EEEEEE;
+}
+
+.logts {
+	padding: 5px 10px 3px;
+}
+
+.oldstate {
+	margin-left: 10px;
+}
+
+.logstateicon {
+	float: left;
+	margin-right: 2px;
+}
+
+.logmessage {
+	float: left;
+	margin-left: 5px 10px;
+	width: 250px;
+}
+
+.loghover {
+	position: absolute;
+	height: auto;
+	width: 350px;
+	border: 1px solid #B5B5B5;
+	-moz-box-shadow: 0 0 10px #B5B5B5;
+	-webkit-box-shadow: 0 0 10px #B5B5B5;
+	box-shadow: 0 0 10px #B5B5B5;
+}
+
+.offlineline {
+	position: relative;
+	border-bottom: 1px solid #B5B5B5;
+	overflow: hidden;
+}
+	
+
+.offlinetimes {
+	padding: 5px;
+}
+
+.offtime {
+	float: left;
+}
+
+.offlinearrow {
+	float: left;
+}
+
+.offlinereason {
+	clear: both;
+	padding: 5px;
+	width: 290px;
+}
+
+.offlinebutton {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 33px;
+	height: 33px;
+	border: 1px solid #B5B5B5;
+	background-color: #F1B3B3;
+	-moz-box-shadow: 0 0 4px #B5B5B5;
+	-webkit-box-shadow: 0 0 4px #B5B5B5;
+	box-shadow: 0 0 4px #B5B5B5;
+	cursor: pointer;
+}
+
+.offlinebutton:hover {
+	-moz-box-shadow: 0 0 4px #606060;
+	-webkit-box-shadow: 0 0 4px #606060;
+	box-shadow: 0 0 4px #606060;
+}
+
+#kickpanel {
+	position: absolute;
+	right: 375px;
+	top: 220px;
+}
+
+#kickbutton {
+	display: block;
+	width: 34px;
+	height: 34px;
+	text-align: center;
+	border: 1px solid #B5B5B5;
+	background-color: #F1B3B3;
+	-moz-box-shadow: 0 0 4px #B5B5B5;
+	-webkit-box-shadow: 0 0 4px #B5B5B5;
+	box-shadow: 0 0 4px #B5B5B5;
+	cursor: pointer;
+}
+
+#kickbutton:hover {
+	-moz-box-shadow: 0 0 4px #606060;
+	-webkit-box-shadow: 0 0 4px #606060;
+	box-shadow: 0 0 4px #606060;
+}
+
+.reasonline {
+	padding: 10px;
+}
+
+#kickreason {
+	width: 215px;
+}
+
+.pagebutton {
+	display: block;
+	color: #606060;
+	background-color: #EFEFEF;
+	border: 1px solid #B5B5B5;
+	-moz-box-shadow: 0 0 4px #B5B5B5;
+	-webkit-box-shadow: 0 0 4px #B5B5B5;
+	box-shadow: 0 0 4px #B5B5B5;
+	cursor: pointer;
+}
+
+#createofflinebutton {	
+	position: absolute;
+    padding: 6px;
+    left: 120px;
+	top: 225px;
+}
+
+#createofflinebutton span {
+	float: left;
+	margin-right: 5px;
+}
+
+.calopen {
+	float: left;
+	padding: 2px;
+	height: 34px;
+	width: 35px;
+	text-align: center;
+	margin: 0px 7px 0;
+}
+
+#createofflinebutton:hover, .calopen:hover {
+	-moz-box-shadow: 0 0 4px #606060;
+	-webkit-box-shadow: 0 0 4px #606060;
+	box-shadow: 0 0 4px #606060;
+}
+
+.createofflineerror {
+	padding: 5px;
+	text-align: left;
+}
+
+.createofflineerror span {
+	float: left;
+	margin-right: 5px;
+}
+
+.timeline {
+	clear: both;
+	padding: 10px;
+}
+
+.timefield {
+	float: left;
+}
+
+#createofflineform .timelinelabel {
+	margin: 15px 0 0;
+	width: 35px;
+}
+
+#createofflineform .timeline div {
+	float: left;
+}
+
+#startdate, #enddate {
+	width: 140px;
+}
+
+#permform {
+	width: 380px;
+	margin: 0 auto;
+}
+
+#permform td {
+	padding: 5px;
+}
+
+#permform input {
+	width: 100%;
+}
+
+#permsubmitbutton {
+	width 100%;
+	text-align: right;	
+}
+
+#permsubmitbutton input {
+	width: 150px;
+}
+
+#permkeylist {
+	width: 400px;
+	margin: 20px auto;
+}
+
+#permkeylist th {
+	font-size: 1.1em;
+	font-weight: bold;
+	background-color: #EFEFEF;
+	padding: 5px;
+}
+
