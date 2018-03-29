@@ -52,7 +52,7 @@ RedundantTrussControl.prototype.setup = function() {
 		this.widgets.push(new MaintWidget(this.$container, 'Maintenance','maint',""));
 		
 		/* Add camera to page. */
-        this.widgets.push(new CameraWidget(this.$container, 'Camera', 'http://10.66.31.233/videostream.cgi?user=admin&pwd=passwd&resolution=32&rate=0', ''));
+        this.widgets.push(new CameraWidget(this.$container, 'Camera', 'http://10.66.31.110/videostream.cgi?user=admin&pwd=passwd&resolution=32&rate=0', ''));
 		
         /* Display manager to allow things to be shown / removed. */
         this.display = new DisplayManager(this.$container, 'Display', this.widgets);
@@ -364,11 +364,11 @@ MimicPanel.prototype.consume = function(data) {
 			this.angleVal = data['angle'];
 			document.getElementById('data-angle').innerHTML = this.angleVal.toPrecision(3);
 	}
-	if ((data['loadmode'] == 0)&&(data['ctrllinksts'] == 0)){
+	if ((data['loadmode'] == 1)&&(data['ctrllinksts'] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById('data-loadsts').innerHTML = 'Maint';
 		document.getElementById('data-loadsts').style.color = '#FFBB00';
 		document.getElementById('mimic-loadbox').disabled = true;
-	}else if ((data['loadmode'] == 1)&&(data['ctrllinksts'] == 0)){
+	}else if ((data['loadmode'] == 0)&&(data['ctrllinksts'] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById('data-loadsts').innerHTML = 'Service';
 		document.getElementById('data-loadsts').style.color = '#7CBB00';
 		document.getElementById('mimic-loadbox').disabled = false;
@@ -377,11 +377,11 @@ MimicPanel.prototype.consume = function(data) {
 		document.getElementById('data-loadsts').style.color = '#000000';
 		document.getElementById('mimic-loadbox').disabled = true;
 	}
-	if ((data['anglemode'] == 0)&&(data['ctrllinksts'] == 0)){
+	if ((data['anglemode'] == 1)&&(data['ctrllinksts'] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById('data-anglests').innerHTML = 'Maint';
 		document.getElementById('data-anglests').style.color = '#FFBB00';
 		document.getElementById('mimic-anglebox').disabled = true;
-	}else if ((data['anglemode'] == 1)&&(data['ctrllinksts'] == 0)){
+	}else if ((data['anglemode'] == 0)&&(data['ctrllinksts'] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById('data-anglests').innerHTML = 'Service';
 		document.getElementById('data-anglests').style.color = '#7CBB00';
 		document.getElementById('mimic-anglebox').disabled = false;
@@ -532,13 +532,13 @@ MimicPanel.prototype.handleTextBoxChange = function(val, tgt) {
     
     var n = parseFloat(val);
 	if (tgt == 0){ //angle
-		if ((n > 30)||(n < -30)){
+		if ((n > 40)||(n < -40)){
 			this.addMessage('Validation - ' + type, "Value out of range.", "error", ttLeft, ttTop, "left");
 			return;
 		}
 	}
 	else if (tgt == 1){ // load
-		if ((n > 200)||(n < 0)){
+		if ((n > 300)||(n < 0)){
 			this.addMessage('Validation - ' + type, "Value out of range.", "error", ttLeft, ttTop, "left");
 			return;
 		}
@@ -590,7 +590,7 @@ STSPanel.prototype.init = function() {
 	this.drawLED('#000000','#cccccc','#000000','#cccccc','#000000','#cccccc');
 	
 	this.enableDraggable();
-	this.enableResizable(250,150,false);
+	this.enableResizable(250,165,false);
 };
 
 // draw objects
@@ -609,12 +609,16 @@ STSPanel.prototype.getHTML = function() {
 				'<canvas id="man-led" width="20px" height="20px"></canvas>'+
 				'<label for="Man-sts" class ="sts-panel-content-label">Load Sensor</label>' +
 			'</div>'+
+			'<div>'+
+				'<canvas id="man-led2" width="20px" height="20px"></canvas>'+
+				'<label for="Man-sts2" class ="sts-panel-content-label">Angle Sensor</label>' +
+			'</div>'+
 		'</div>'
 	);
 };
 // update data
 STSPanel.prototype.consume = function(data) {
-	var styleFill1,styleFill2,styleFill3,styleStr1,styleStr2,styleStr3;
+	var styleFill1,styleFill2,styleFill3,styleFill4,styleStr1,styleStr2,styleStr3,styleStr4;
 	if (data['daqlinksts'] == 2){
 		styleFill1 = '#000000';
 		styleStr1 = '#cccccc';
@@ -659,16 +663,30 @@ STSPanel.prototype.consume = function(data) {
 		else{
 		styleFill3 = '#000000';
 		styleStr3 = '#999999';
-	}
+		}
+		if (data['anglehealth'] == 0){
+			styleFill4 = '#00cc00';
+			styleStr4 = '#99ff99';
+		}
+		else if (data['anglehealth'] == 1){
+			styleFill4 = '#FF0000';
+			styleStr4 = '#ff9999';
+		}
+		else{
+			styleFill4 = '#000000';
+			styleStr4 = '#999999';
+		}
 	} 
 	else{
 		styleFill3 = '#000000';
 		styleStr3 = '#999999';
+		styleFill4 = '#000000';
+		styleStr4 = '#999999';
 	}
 
-	this.drawLED(styleFill1,styleStr1,styleFill2,styleStr2,styleFill3,styleStr3);
+	this.drawLED(styleFill1,styleStr1,styleFill2,styleStr2,styleFill3,styleStr3,styleFill4,styleStr4);
 };
-STSPanel.prototype.drawLED = function(color1,highlight1,color2,hightlight2,color3,highlight3){
+STSPanel.prototype.drawLED = function(color1,highlight1,color2,hightlight2,color3,highlight3,color4,highlight4){
 	// define LED properties
 	var centerX = 10;
 	var centerY = 10;
@@ -681,11 +699,14 @@ STSPanel.prototype.drawLED = function(color1,highlight1,color2,hightlight2,color
 	var context2 = canvas2.getContext('2d');
 	var canvas3 = document.getElementById('man-led');
 	var context3 = canvas3.getContext('2d');
+	var canvas4 = document.getElementById('man-led2');
+	var context4 = canvas4.getContext('2d');
 	
 	// initialize the canvas
 	context1.clearRect(0,0,20,20);
 	context2.clearRect(0,0,20,20);
 	context3.clearRect(0,0,20,20);
+	context4.clearRect(0,0,20,20);
 	
 	// draw communication link led	
 	context1.beginPath();
@@ -728,6 +749,20 @@ STSPanel.prototype.drawLED = function(color1,highlight1,color2,hightlight2,color
 	context3.lineWidth = 2;
 	context3.strokeStyle = highlight3;
 	context3.stroke();
+	
+	// draw Manual override LED 2
+	context4.beginPath();
+	context4.arc(centerX,centerY,radius,0,2*Math.PI,false);
+	context4.fillStyle = color4;
+	context4.fill();
+	context4.lineWidth = 2;
+	context4.strokeStyle = '#A0A0A0';
+	context4.stroke();
+	context4.beginPath();
+	context4.arc(centerX,centerY,radius-3,0.1*Math.PI,1.55*Math.PI,true);
+	context4.lineWidth = 2;
+	context4.strokeStyle = highlight4;
+	context4.stroke();
 }
 
 /* ============================================================================
@@ -767,7 +802,7 @@ MaintWidget.prototype = new Widget;
 MaintWidget.prototype.init = function() {
     this.$widget = this.generateBox(this.id);
 	this.enableDraggable();
-	this.enableResizable(250,533,false);
+	this.enableResizable(250,418,false);
 	var thiz = this;
 	
 	this.step = undefined;
@@ -775,20 +810,6 @@ MaintWidget.prototype.init = function() {
 	this.angleMode = undefined;
 	this.loadMode = undefined;
 	
-	this.$servBtnA = $("#"+this.id+"-btn-servA") 
-		.click(function() { thiz.handleButtonClick(0,1); })
-		.mousedown(function() { $(this).addClass("click-button-active");   })
-		.mouseup(function() { $(this).removeClass("click-button-active") ; })
-		.keypress(function(e) {
-				if (e.keyCode == 13) thiz.handleButtonClick(0,1);
-			});
-	this.$maintBtnA = $("#"+this.id+"-btn-maintA") 
-		.click(function() { thiz.handleButtonClick(0,0); })
-		.mousedown(function() { $(this).addClass("click-button-active");   })
-		.mouseup(function() { $(this).removeClass("click-button-active") ; })
-		.keypress(function(e) {
-				if (e.keyCode == 13) thiz.handleButtonClick(0,0);
-			});
 	this.$leftBtnA = $("#"+this.id+"-btn-leftA") 
 		.click(function() { thiz.handleButtonClick(0,2); })
 		.mousedown(function() { $(this).addClass("click-button-active");   })
@@ -810,20 +831,6 @@ MaintWidget.prototype.init = function() {
 		.keypress(function(e) {
 				if (e.keyCode == 13) thiz.handleButtonClick(0,4);
 			});		
-	this.$servBtnL = $("#"+this.id+"-btn-servL") 
-		.click(function() { thiz.handleButtonClick(1,1); })
-		.mousedown(function() { $(this).addClass("click-button-active");   })
-		.mouseup(function() { $(this).removeClass("click-button-active") ; })
-		.keypress(function(e) {
-				if (e.keyCode == 13) thiz.handleButtonClick(1,1);
-			});
-	this.$maintBtnL = $("#"+this.id+"-btn-maintL") 
-		.click(function() { thiz.handleButtonClick(1,0); })
-		.mousedown(function() { $(this).addClass("click-button-active");   })
-		.mouseup(function() { $(this).removeClass("click-button-active") ; })
-		.keypress(function(e) {
-				if (e.keyCode == 13) thiz.handleButtonClick(1,0);
-			});
 	this.$leftBtnL = $("#"+this.id+"-btn-leftL") 
 		.click(function() { thiz.handleButtonClick(1,2); })
 		.mousedown(function() { $(this).addClass("click-button-active");   })
@@ -837,13 +844,6 @@ MaintWidget.prototype.init = function() {
 		.mouseup(function() { $(this).removeClass("click-button-active") ; })
 		.keypress(function(e) {
 				if (e.keyCode == 13) thiz.handleButtonClick(1,3);
-			});		
-	this.$caliBtnL = $("#"+this.id+"-btn-caliL") 
-		.click(function() { thiz.handleButtonClick(1,4); })
-		.mousedown(function() { $(this).addClass("click-button-active");   })
-		.mouseup(function() { $(this).removeClass("click-button-active") ; })
-		.keypress(function(e) {
-				if (e.keyCode == 13) thiz.handleButtonClick(1,4);
 			});		
 	this.$anglebox = $("#" + this.id + "-anglebox")
 		.focusin(formFocusIn)
@@ -867,13 +867,13 @@ MaintWidget.prototype.getHTML = function() {
 			'<label for="maint-status-A" class="maint-label">Status:</label>'+
 			'<span id="'+this.id+'-status-A" class="maint-status">XXXXXXXXXXX</span>'+
 		'</div>'+	
-		'<div class="maint-button-div">' +
-			'<a id="'+this.id+'-btn-servA" class="click-button click-button-disabled maint-btn-serv" tabindex="1" >SERVICE</a>' +
-			'<a id="'+this.id+'-btn-maintA" class="click-button click-button-disabled maint-btn-maint" tabindex="2" >MAINT</a>' +
+		'<div class="maint-body-div">' +
+			'<label for="maint-step-A" class="maint-label">Raw D:</label>'+
+			'<span id="'+this.id+'-step-A" class="maint-status">nnnn</span>'+
 		'</div>'+
 		'<div class="maint-body-div">' +
-			'<label for="maint-step-A" class="maint-label">Step:</label>'+
-			'<span id="'+this.id+'-step-A" class="maint-status">nnnn</span>'+
+			'<label for="maint-ref-A" class="maint-label">Ref D:</label>'+
+			'<span id="'+this.id+'-ref-A" class="maint-status">nnnn</span>'+
 		'</div>'+			
 		'<div class="maint-button-div">' +
 			'<a id="'+this.id+'-btn-leftA" class="click-button click-button-disabled maint-btn-left" tabindex="3" >&#x21E6;</a>' +
@@ -900,17 +900,10 @@ MaintWidget.prototype.getHTML = function() {
 			'<span id="'+this.id+'-status-L" class="maint-status">XXXXXXXXXXX</span>'+
 		'</div>'+	
 		'<div class="maint-button-div">' +
-			'<a id="'+this.id+'-btn-servL" class="click-button click-button-disabled maint-btn-serv" tabindex="7" >SERVICE</a>' +
-			'<a id="'+this.id+'-btn-maintL" class="click-button click-button-disabled maint-btn-maint" tabindex="8" >MAINT</a>' +
-		'</div>'+	
-		'<div class="maint-button-div">' +
 			'<a id="'+this.id+'-btn-leftL" class="click-button click-button-disabled maint-btn-left" tabindex="9" >&#x21E9;</a>' +
 			'<input id="'+this.id+'-loadbox" class="maint-input" type="text" tabindex="10"/>' +
 			'<a id="'+this.id+'-btn-rightL" class="click-button click-button-disabled maint-btn-right" tabindex="11" >&#x21E7;</a>' +
-		'</div>'+	
-		'<div class="maint-button-div">' +
-			'<a id="'+this.id+'-btn-caliL" class="click-button click-button-disabled maint-btn-cali" tabindex="12" >CALIBRATE</a>' +
-		'</div>'		
+		'</div>'	
 	);
 }
 
@@ -918,32 +911,18 @@ MaintWidget.prototype.handleButtonClick = function(target,cmd){
 	var thiz = this, params = {};
 	var newAction = undefined;
 	if (target == 0){ //angle stepping
-		if (cmd == 0){
-			newAction = 'setAngleMode';
-			params['tgtAngleMode'] = 0;
-		}else if (cmd == 1){
-			newAction = 'setAngleMode';
-			params['tgtAngleMode'] = 1;
-		}else if (cmd == 2){
-			newAction = 'decTgtStep';
+		if (cmd == 2){
+			newAction = 'decAngleStep';
 		}else if (cmd == 3){
-			newAction = 'incTgtStep';
+			newAction = 'incAngleStep';
 		}else if (cmd == 4){
-			newAction = 'caliAngle';
+			newAction = 'caliScrew';
 		}
 	}else if (target == 1){ //load stepping
-		if (cmd == 0){
-			newAction = 'setLoadMode';
-			params['tgtLoadMode'] = 0;
-		}else if (cmd == 1){
-			newAction = 'setLoadMode';
-			params['tgtLoadMode'] = 1;
-		}else if (cmd == 2){
+		if (cmd == 2){
 			newAction = 'decLoadStep';
 		}else if (cmd == 3){
 			newAction = 'incLoadStep';
-		}else if (cmd == 4){
-			newAction = 'caliLoad';
 		}
 	}
 	this.postControl(newAction, params,
@@ -985,7 +964,7 @@ MaintWidget.prototype.sendValue = function(val){
 };
 
 MaintWidget.prototype.consume = function(data) {
-	var dataStep = 'anglestep';
+	var dataStep = 'rawdistance';
 	var dataStepsize = 'stepsize';
 	var dataAngleMode = 'anglemode';
 	var dataLoadMode = 'loadmode';
@@ -993,20 +972,21 @@ MaintWidget.prototype.consume = function(data) {
 	
 	// update static text
 	document.getElementById(this.id+'-step-A').innerHTML = data[dataStep];
-	if ((data[dataAngleMode] == 0)&&(data[dataComm] == 0)){
+	document.getElementById(this.id+'-ref-A').innerHTML = data['refdistance'];
+	if ((data[dataAngleMode] == 1)&&(data[dataComm] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById(this.id+'-status-A').innerHTML = 'Maintenance';
 		document.getElementById(this.id+'-status-A').style.color = '#FFBB00';
-	}else if ((data[dataAngleMode] == 1)&&(data[dataComm] == 0)){
+	}else if ((data[dataAngleMode] == 0)&&(data[dataComm] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById(this.id+'-status-A').innerHTML = 'Service';
 		document.getElementById(this.id+'-status-A').style.color = '#7CBB00';
 	}else{
 		document.getElementById(this.id+'-status-A').innerHTML = 'Wait..';
 		document.getElementById(this.id+'-status-A').style.color = '#000000';
 	}
-	if ((data[dataLoadMode] == 0)&&(data[dataComm] == 0)){
+	if ((data[dataLoadMode] == 1)&&(data[dataComm] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById(this.id+'-status-L').innerHTML = 'Maintenance';
 		document.getElementById(this.id+'-status-L').style.color = '#FFBB00';
-	}else if ((data[dataLoadMode] == 1)&&(data[dataComm] == 0)){
+	}else if ((data[dataLoadMode] == 0)&&(data[dataComm] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById(this.id+'-status-L').innerHTML = 'Service';
 		document.getElementById(this.id+'-status-L').style.color = '#7CBB00';
 	}else{
@@ -1028,52 +1008,37 @@ MaintWidget.prototype.consume = function(data) {
 	}
 	
 	// interlock
-	if ((data[dataAngleMode] == 0)&&(data[dataComm] == 0)){
+	if ((data[dataAngleMode] == 1)&&(data[dataComm] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById(this.id+'-anglebox').disabled = false;
-		this.$servBtnA.removeClass("click-button-disabled");
-		this.$maintBtnA.addClass("click-button-disabled");
 		this.$leftBtnA.removeClass("click-button-disabled");
 		this.$rightBtnA.removeClass("click-button-disabled");
 		this.$caliBtnA.removeClass("click-button-disabled");
 	}
-	else if ((data[dataAngleMode] == 1)&&(data[dataComm] == 0)){
+	else if ((data[dataAngleMode] == 0)&&(data[dataComm] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById(this.id+'-anglebox').disabled = true;
-		this.$servBtnA.addClass("click-button-disabled");
-		this.$maintBtnA.removeClass("click-button-disabled");
 		this.$leftBtnA.addClass("click-button-disabled");
 		this.$rightBtnA.addClass("click-button-disabled");
 		this.$caliBtnA.addClass("click-button-disabled");		
 	}else{
 		document.getElementById(this.id+'-anglebox').disabled = true;
-		this.$servBtnA.addClass("click-button-disabled");
-		this.$maintBtnA.addClass("click-button-disabled");
 		this.$leftBtnA.addClass("click-button-disabled");
 		this.$rightBtnA.addClass("click-button-disabled");
 		this.$caliBtnA.addClass("click-button-disabled");	
 	}
 	
-	if ((data[dataLoadMode] == 0)&&(data[dataComm] == 0)){
+	if ((data[dataLoadMode] == 1)&&(data[dataComm] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById(this.id+'-loadbox').disabled = false;
-		this.$servBtnL.removeClass("click-button-disabled");
-		this.$maintBtnL.addClass("click-button-disabled");
 		this.$leftBtnL.removeClass("click-button-disabled");
 		this.$rightBtnL.removeClass("click-button-disabled");
-		this.$caliBtnL.removeClass("click-button-disabled");
 	}
-	else if ((data[dataLoadMode] == 1)&&(data[dataComm] == 0)){
+	else if ((data[dataLoadMode] == 0)&&(data[dataComm] == 0)&&(data['ctrlmode']>=20)){
 		document.getElementById(this.id+'-loadbox').disabled = true;
-		this.$servBtnL.addClass("click-button-disabled");
-		this.$maintBtnL.removeClass("click-button-disabled");
 		this.$leftBtnL.addClass("click-button-disabled");
 		this.$rightBtnL.addClass("click-button-disabled");
-		this.$caliBtnL.addClass("click-button-disabled");		
 	}else{
 		document.getElementById(this.id+'-loadbox').disabled = true;
-		this.$servBtnL.addClass("click-button-disabled");
-		this.$maintBtnL.addClass("click-button-disabled");
 		this.$leftBtnL.addClass("click-button-disabled");
 		this.$rightBtnL.addClass("click-button-disabled");
-		this.$caliBtnL.addClass("click-button-disabled");
 	}
 
 }
@@ -2063,7 +2028,7 @@ CameraWidget.prototype.init = function() {
             $('.metro-container').fadeToggle();
         });
         
-        this.enableResizable(185.5, 175, true);
+        this.enableResizable(320, 360, true);
         
         /* Restore current format after reinit. */
         if (this.currentFormat) this.deploy(this.currentFormat);
@@ -2261,26 +2226,56 @@ CameraWidget.prototype.getMjpegHtml = function() {
         );
 };
 
-/** Difference between widget width and video width. */
-CameraWidget.VID_WIDTH_DIFF = 8;
+/** Minimum height to leave for SWF/M-JPEG selector in pixels */
+CameraWidget.VID_CONTROLS_BUFFER = 100;
 
-/** Difference between widget height and video height. */
-CameraWidget.VID_HEIGHT_DIFF = 72;
+/** Difference between widget height and window height in pixels */
+CameraWidget.VID_HEIGHT_DIFF = 40;
 
 CameraWidget.prototype.resized = function(width, height) {
     if (this.isDeployed) this.undeploy();
+
     
-    this.$widget.find(".video-player").css({
-       width: width - CameraWidget.VID_WIDTH_DIFF,
-       height: height - CameraWidget.VID_HEIGHT_DIFF
-    });
+	if (height < width*0.75) {
+		this.$widget.find(".video-player").css({
+			width: height * 1.333,
+			height: height
+		});
+	} else {
+		this.$widget.find(".video-player").css({
+			width: width,
+			height: width*0.75
+		});
+	}
+	
+    this.$widget.find(".window-content").css({
+		height: height - CameraWidget.VID_HEIGHT_DIFF
+	});
+	
     this.$widget.css("padding-bottom","0.8%");
 };
 
 CameraWidget.prototype.resizeStopped = function(width, height) {
-    this.videoWidth = width - CameraWidget.VID_WIDTH_DIFF;
-    this.videoHeight = height - CameraWidget.VID_HEIGHT_DIFF;
-    
+	vidWidth = width;
+	vidHeight = height - CameraWidget.VID_HEIGHT_DIFF;
+	
+	if (vidHeight - CameraWidget.VID_CONTROLS_BUFFER < vidWidth*0.75) {
+		this.videoWidth = (vidHeight * 1.333) - CameraWidget.VID_CONTROLS_BUFFER;
+		this.videoHeight = this.videoWidth * 0.75;
+	} else {
+		this.videoWidth = vidWidth;
+		this.videoHeight = this.videoWidth *0.75;
+	}
+   
+    this.$widget.find(".window-content").css({
+		height: height - CameraWidget.VID_HEIGHT_DIFF
+	});
+	
+	this.$widget.find(".video-player").css({
+			width: this.videoWidth,
+			height: this.videoHeight
+		});
+	
     this.deploy(this.currentFormat);
 };
 

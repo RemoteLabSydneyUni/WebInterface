@@ -44,9 +44,9 @@ PendulumControl.prototype.setup = function() {
         /* Add camera to page. */
         this.widgets.push(new CameraWidget(this.$container, 'Camera', 'http://10.66.31.237/videostream.cgi?user=admin&pwd=passwd&resolution=32&rate=0', ''));
 		/* Add widget for showing Period value*/
-        this.widgets.push(new DataValWidget(this.$container, 'Period', 'info', 'Period(s) = ', 'Period'));
+        //this.widgets.push(new DataValWidget(this.$container, 'Period', 'info', 'Period(s) = ', 'Period'));
 		/* Add widget for showing current pendulum length value*/
-        this.widgets.push(new DataValWidget(this.$container, 'Length', 'info', 'Current Length(mm)=', 'Length'));
+        //this.widgets.push(new DataValWidget(this.$container, 'Length', 'info', 'Current Length(mm)=', 'Length'));
 		/* Add widget for showing current status of the rig*/
 		stsWidget = new STSPanel(this.$container, 'Status','sts');
 		this.widgets.push(stsWidget);
@@ -56,6 +56,9 @@ PendulumControl.prototype.setup = function() {
         
 		rcpWidget = new RecipePanel(this.$container, 'Control','rcp');
 		this.widgets.push(rcpWidget);
+		
+		rmtWidget = new RemoteLockPanel(this.$container, 'Control','rlp');
+		this.widgets.push(rmtWidget);
 		
         /* Display manager to allow things to be shown / removed. */
         this.display = new DisplayManager(this.$container, 'Display', this.widgets);
@@ -156,19 +159,34 @@ STSPanel.prototype.init = function() {
 	this.$widget = this.generateBox('place-holder-sts-panel');
 	
 	this.enableDraggable();
-	this.enableResizable(280,170,false);
+	this.enableResizable(280,258,false);
 };
 
 // draw objects
 STSPanel.prototype.getHTML = function() {
 	return(
 		'<div class ="sts-panel-content-div">'+
-			'<label for="Comm-sts" class ="sts-panel-content-label">Comm Link: </label>' +
+			'<label for="Comm-sts" class ="sts-panel-content-label">Comm: </label>' +
 			'<span id="'+this.id+'-linkVal" class ="sts-panel-content-span">link</label>' +
+		'</div>'+
+		'<div class ="sts-panel-content-div">'+
+			'<label for="Sensor-sts" class ="sts-panel-content-label">Sensor: </label>' +
+			'<span id="'+this.id+'-sensorVal" class ="sts-panel-content-span">sensor</label>' +
 		'</div>'+
 		'<div class ="sts-panel-content-div">'+
 			'<label for="mode-sts" class ="sts-panel-content-label">Mode: </label>' +
 			'<span id="'+this.id+'-modeVal" class ="sts-panel-content-span">Mode</label>' +
+		'</div>'+
+		'<div class="sts-panel-spacer-div">' +
+			'<hr>'+
+		'</div>'+
+		'<div class ="sts-panel-content-div">'+
+			'<label for="length-sts" class ="sts-panel-content-label">Length(mm): </label>' +
+			'<span id="'+this.id+'-lengthVal" class ="sts-panel-content-span">Length</label>' +
+		'</div>'+
+		'<div class ="sts-panel-content-div">'+
+			'<label for="period-sts" class ="sts-panel-content-label">Period(s): </label>' +
+			'<span id="'+this.id+'-periodVal" class ="sts-panel-content-span">period</label>' +
 		'</div>'+
 		'<div class="sts-panel-spacer-div">' +
 			'<hr>'+
@@ -184,39 +202,43 @@ STSPanel.prototype.consume = function(data) {
 	if (data['Watchdog'] == 999){
 		document.getElementById(this.id+'-linkVal').innerHTML = 'Init';
 		document.getElementById(this.id+'-linkVal').style.color = '#0000FF';
+		document.getElementById(this.id+'-stsVal').innerHTML = 'Rig Initializing...Please wait...';
+		document.getElementById(this.id+'-lengthVal').innerHTML = '---';
+		document.getElementById(this.id+'-lengthVal').style.color = '#0000FF';
+		document.getElementById(this.id+'-periodVal').innerHTML = '---';
+		document.getElementById(this.id+'-periodVal').style.color = '#0000FF';
 	}
 	else if (data['Watchdog'] < 150){
 		document.getElementById(this.id+'-linkVal').innerHTML = 'OK';
 		document.getElementById(this.id+'-linkVal').style.color = '#000000';
-	}
-	else if (data['Watchdog'] >= 150){
-		document.getElementById(this.id+'-linkVal').innerHTML = 'Fail';
-		document.getElementById(this.id+'-linkVal').style.color = '#FF0000';
-	}
-	else {
-		document.getElementById(this.id+'-linkVal').innerHTML = 'Error';
-		document.getElementById(this.id+'-linkVal').style.color = '#808080';
-	}
+		if 	(data['SensorFault'] == 1){
+			document.getElementById(this.id+'-sensorVal').innerHTML = 'Fail';
+			document.getElementById(this.id+'-sensorVal').style.color = '#FF0000';
+			document.getElementById(this.id+'-lengthVal').innerHTML = 'Unknown';
+			document.getElementById(this.id+'-lengthVal').style.color = '#FF0000';
+		}
+		else{
+			document.getElementById(this.id+'-sensorVal').innerHTML = 'OK';
+			document.getElementById(this.id+'-sensorVal').style.color = '#000000';
+			document.getElementById(this.id+'-lengthVal').innerHTML = data['Length'].toFixed(0);
+			document.getElementById(this.id+'-lengthVal').style.color = '#000000';
+		}
+		document.getElementById(this.id+'-periodVal').innerHTML = data['Period'].toFixed(3);
+		document.getElementById(this.id+'-periodVal').style.color = '#000000';
 		
-	if ((data['ProcMode'] == 1)||(data['ProcMode'] == 9)){
-		document.getElementById(this.id+'-modeVal').innerHTML = 'Automatic';
-	}
-	else if (data['ProcMode'] == 2){
-		document.getElementById(this.id+'-modeVal').innerHTML = 'Manual';
-	}
-	else if (data['ProcMode'] == 0){
-		document.getElementById(this.id+'-modeVal').innerHTML = 'Init';
-	}
-	else{
-		document.getElementById(this.id+'-modeVal').innerHTML = '-';
-	}
-	
-	if (data['Watchdog'] == 999){
-		document.getElementById(this.id+'-stsVal').innerHTML = 'Rig Initializing...Please wait...';
-	}else if (data['Watchdog'] >= 150){
-		document.getElementById(this.id+'-stsVal').innerHTML = 'Comm Failed';
-	}
-	else{
+		if ((data['ProcMode'] == 1)||(data['ProcMode'] == 9)){
+			document.getElementById(this.id+'-modeVal').innerHTML = 'Automatic';
+		}
+		else if (data['ProcMode'] == 2){
+			document.getElementById(this.id+'-modeVal').innerHTML = 'Manual';
+		}
+		else if (data['ProcMode'] == 0){
+			document.getElementById(this.id+'-modeVal').innerHTML = 'Init';
+		}
+		else{
+			document.getElementById(this.id+'-modeVal').innerHTML = '-';
+		}
+		
 		if ((data['ProcMode'] == 1)||(data['ProcMode'] == 2)){ 
 			if (data['ProcState'] == 0){
 				document.getElementById(this.id+'-stsVal').innerHTML = 'Idle';
@@ -256,9 +278,94 @@ STSPanel.prototype.consume = function(data) {
 		else if (data['ProcMode'] == 9){
 			document.getElementById(this.id+'-stsVal').innerHTML = 'Waiting...';
 			document.getElementById(this.id+'-stsVal').style.color = '#aaaaaa';
+		}		
+	}
+	else if (data['Watchdog'] >= 150){
+		document.getElementById(this.id+'-linkVal').innerHTML = 'Fail';
+		document.getElementById(this.id+'-linkVal').style.color = '#FF0000';
+		document.getElementById(this.id+'-stsVal').innerHTML = 'Comm Failed';
+		document.getElementById(this.id+'-lengthVal').innerHTML = '---';
+		document.getElementById(this.id+'-lengthVal').style.color = '#AAAAAA';
+		document.getElementById(this.id+'-periodVal').innerHTML = '---';
+		document.getElementById(this.id+'-periodVal').style.color = '#AAAAAA';
+	}
+	else {
+		document.getElementById(this.id+'-linkVal').innerHTML = 'Error';
+		document.getElementById(this.id+'-linkVal').style.color = '#808080';
+	}
+
+};
+
+/* ============================================================================
+ * == Remote Lock Panel Widget	                                             ==
+ * ============================================================================ */
+function RemoteLockPanel($container, title, icon){
+	Widget.call(this, $container, 'RmtLock', 'rmt');
+	/** Identifier of this widget. */
+    this.id = "Pendulum-Remote-Lock-Panel";
+	this.remotests = undefined;
+	this.$TOGGLEBtn = undefined;
+}
+RemoteLockPanel.prototype = new Widget;
+
+// initialization
+RemoteLockPanel.prototype.init = function() {
+	this.$widget = this.generateBox('place-holder-rmt-panel');
+	var thiz = this;
+	
+	this.$TOGGLEBtn = $("#"+this.id+"-TOGGLE") 
+		.click(function() { thiz.handleButtonClick(); })
+		.mousedown(function() { $(this).addClass("click-button-active");   })
+		.mouseup(function() { $(this).removeClass("click-button-active") ; })
+		.keypress(function(e) {
+				if (e.keyCode == 13) thiz.handleButtonClick();
+			});
+	
+	this.enableDraggable();
+	this.enableResizable(230,130,false);
+};
+
+// draw objects
+RemoteLockPanel.prototype.getHTML = function() {
+	return(
+		'<div class ="mcp-title-div">'+
+			'<label for="Comm-rmt" class ="mcp-title">Remote Lock: </label>' +
+		'</div>' +
+		'<div class ="mcp-div">'+
+			'<label id="'+this.id+'-stsVal" class ="mcp-label" style = "text-align: left">XXXXXXXXXX</label>' +
+			'<a id="'+this.id+'-TOGGLE" class="click-button click-button-disabled mcp-btn2" tabindex="1" >TOGGLE</a>'+
+		'</div>'
+	);
+};
+
+RemoteLockPanel.prototype.handleButtonClick = function(){
+	var thiz = this, params = {}; 
+	var newAction = 'setRemoteLock';
+	params['remoteLockTgt'] = this.remotests* (-1) +1;
+	this.postControl(newAction, params,
+        function(data) {}
+    );
+};
+RemoteLockPanel.prototype.consume = function(data) {
+	// update value
+	if (!(data['remoteLock'] == undefined || data['remoteLock'] == this.remotests)){
+		this.remotests = data['remoteLock'];
+		if (typeof(this.remotests) != 'undefined' && this.remotests != null) {
+			if (this.remotests == 0){
+				document.getElementById(this.id+'-stsVal').innerText = 'Control';
+				document.getElementById(this.id+'-stsVal').style.color = '#00cc00';
+				
+			}else if (this.remotests == 1){
+				document.getElementById(this.id+'-stsVal').innerText = 'ViewOnly';
+				document.getElementById(this.id+'-stsVal').style.color = '#ff9900';
+			}
+		}else{
+			document.getElementById(this.id+'-stsVal').innerText = '???';
+			document.getElementById(this.id+'-stsVal').style.color = '#0000cc';
 		}
 	}
 };
+
 /* ============================================================================
  * == Recipe Control widget                                                  ==
  * ============================================================================ */
@@ -776,11 +883,11 @@ MCPanel.prototype.consume = function(data) {
 		this.$CALIBtn.addClass("click-button-disabled");
 	}
 	else{
+		this.$STOPBtn.removeClass("click-button-disabled");
 		if (data[dataMode] == 1){
 			document.getElementById(this.id+'-sp').disabled = true;
 			
 			this.$STARTBtn.addClass("click-button-disabled");
-			this.$STOPBtn.removeClass("click-button-disabled");
 			this.$MOVEUPBtn.addClass("click-button-disabled");
 			this.$MOVEDOWNBtn.addClass("click-button-disabled");
 			this.$FASTUPBtn.addClass("click-button-disabled");
@@ -796,7 +903,6 @@ MCPanel.prototype.consume = function(data) {
 			if (data[dataState] == 0){
 				document.getElementById(this.id+'-sp').disabled = false;
 				this.$STARTBtn.removeClass("click-button-disabled");
-				this.$STOPBtn.addClass("click-button-disabled");
 				this.$MOVEUPBtn.removeClass("click-button-disabled");
 				this.$MOVEDOWNBtn.removeClass("click-button-disabled");
 				this.$FASTUPBtn.removeClass("click-button-disabled");
@@ -811,7 +917,6 @@ MCPanel.prototype.consume = function(data) {
 			if (data[dataState] == 1){
 				document.getElementById(this.id+'-sp').disabled = true;
 				this.$STARTBtn.addClass("click-button-disabled");
-				this.$STOPBtn.addClass("click-button-disabled");
 				this.$MOVEUPBtn.addClass("click-button-disabled");
 				this.$MOVEDOWNBtn.addClass("click-button-disabled");
 				this.$FASTUPBtn.addClass("click-button-disabled");
@@ -826,7 +931,6 @@ MCPanel.prototype.consume = function(data) {
 			if (data[dataState] == 2){
 				document.getElementById(this.id+'-sp').disabled = true;
 				this.$STARTBtn.addClass("click-button-disabled");
-				this.$STOPBtn.addClass("click-button-disabled");
 				this.$MOVEUPBtn.addClass("click-button-disabled");
 				this.$MOVEDOWNBtn.addClass("click-button-disabled");
 				this.$FASTUPBtn.addClass("click-button-disabled");
@@ -841,7 +945,6 @@ MCPanel.prototype.consume = function(data) {
 			if (data[dataState] == 3){
 				document.getElementById(this.id+'-sp').disabled = true;
 				this.$STARTBtn.addClass("click-button-disabled");
-				this.$STOPBtn.addClass("click-button-disabled");
 				this.$MOVEUPBtn.addClass("click-button-disabled");
 				this.$MOVEDOWNBtn.addClass("click-button-disabled");
 				this.$FASTUPBtn.addClass("click-button-disabled");
@@ -856,7 +959,6 @@ MCPanel.prototype.consume = function(data) {
 			if (data[dataState] == 4){
 				document.getElementById(this.id+'-sp').disabled = true;
 				this.$STARTBtn.addClass("click-button-disabled");
-				this.$STOPBtn.addClass("click-button-disabled");
 				this.$MOVEUPBtn.addClass("click-button-disabled");
 				this.$MOVEDOWNBtn.addClass("click-button-disabled");
 				this.$FASTUPBtn.addClass("click-button-disabled");
@@ -871,7 +973,6 @@ MCPanel.prototype.consume = function(data) {
 			if (data[dataState] == 5){
 				document.getElementById(this.id+'-sp').disabled = false;
 				this.$STARTBtn.addClass("click-button-disabled");
-				this.$STOPBtn.addClass("click-button-disabled");
 				this.$MOVEUPBtn.removeClass("click-button-disabled");
 				this.$MOVEDOWNBtn.removeClass("click-button-disabled");
 				this.$FASTUPBtn.removeClass("click-button-disabled");
@@ -1872,7 +1973,7 @@ CameraWidget.prototype.init = function() {
             $('.metro-container').fadeToggle();
         });
         
-        this.enableResizable(185.5, 175, true);
+        this.enableResizable(320, 360, true);
         
         /* Restore current format after reinit. */
         if (this.currentFormat) this.deploy(this.currentFormat);
@@ -2070,26 +2171,56 @@ CameraWidget.prototype.getMjpegHtml = function() {
         );
 };
 
-/** Difference between widget width and video width. */
-CameraWidget.VID_WIDTH_DIFF = 8;
+/** Minimum height to leave for SWF/M-JPEG selector in pixels */
+CameraWidget.VID_CONTROLS_BUFFER = 100;
 
-/** Difference between widget height and video height. */
-CameraWidget.VID_HEIGHT_DIFF = 72;
+/** Difference between widget height and window height in pixels */
+CameraWidget.VID_HEIGHT_DIFF = 40;
 
 CameraWidget.prototype.resized = function(width, height) {
     if (this.isDeployed) this.undeploy();
+
     
-    this.$widget.find(".video-player").css({
-       width: width - CameraWidget.VID_WIDTH_DIFF,
-       height: height - CameraWidget.VID_HEIGHT_DIFF
-    });
+	if (height < width*0.75) {
+		this.$widget.find(".video-player").css({
+			width: height * 1.333,
+			height: height
+		});
+	} else {
+		this.$widget.find(".video-player").css({
+			width: width,
+			height: width*0.75
+		});
+	}
+	
+    this.$widget.find(".window-content").css({
+		height: height - CameraWidget.VID_HEIGHT_DIFF
+	});
+	
     this.$widget.css("padding-bottom","0.8%");
 };
 
 CameraWidget.prototype.resizeStopped = function(width, height) {
-    this.videoWidth = width - CameraWidget.VID_WIDTH_DIFF;
-    this.videoHeight = height - CameraWidget.VID_HEIGHT_DIFF;
-    
+	vidWidth = width;
+	vidHeight = height - CameraWidget.VID_HEIGHT_DIFF;
+	
+	if (vidHeight - CameraWidget.VID_CONTROLS_BUFFER < vidWidth*0.75) {
+		this.videoWidth = (vidHeight * 1.333) - CameraWidget.VID_CONTROLS_BUFFER;
+		this.videoHeight = this.videoWidth * 0.75;
+	} else {
+		this.videoWidth = vidWidth;
+		this.videoHeight = this.videoWidth *0.75;
+	}
+   
+    this.$widget.find(".window-content").css({
+		height: height - CameraWidget.VID_HEIGHT_DIFF
+	});
+	
+	this.$widget.find(".video-player").css({
+			width: this.videoWidth,
+			height: this.videoHeight
+		});
+	
     this.deploy(this.currentFormat);
 };
 
